@@ -1,0 +1,54 @@
+{
+  "state": "Tamil Nadu",
+  "act": "Tamil Nadu Money Lenders Act, 1957",
+  "clauses": [
+    {
+      "clause_type": "interest_rate",
+      "label": "Interest Rate",
+      "legal_limit": "Maximum 12 percent per annum for secured loans, 18 percent per annum for unsecured loans",
+      "section": "Section 13, Tamil Nadu Money Lenders Act 1957",
+      "plain_explanation": "The maximum legal interest rate in Tamil Nadu is 12 percent per year for secured loans and 18 percent for unsecured loans. Any rate above this is illegal and you are not bound to pay it.",
+      "counter_message": "Under Section 13 of the Tamil Nadu Money Lenders Act 1957, the maximum permissible interest rate is 18 percent per annum for unsecured loans. The rate stated in this agreement exceeds the legal limit and I do not agree to pay any interest above 18 percent per annum."
+    },
+    {
+      "clause_type": "compound_interest",
+      "label": "Compound Interest",
+      "legal_limit": "Compound interest is prohibited — only simple interest is permitted",
+      "section": "Section 13, Tamil Nadu Money Lenders Act 1957",
+      "plain_explanation": "A moneylender in Tamil Nadu cannot charge interest on top of interest. Only simple interest is permitted by law. A compound interest clause is illegal.",
+      "counter_message": "Compound interest is prohibited under Section 13 of the Tamil Nadu Money Lenders Act 1957. I agree only to simple interest calculated at the legally permitted rate."
+    },
+    {
+      "clause_type": "lender_license",
+      "label": "Unlicensed Moneylender",
+      "legal_limit": "Moneylender must hold a valid license issued by the Tamil Nadu government",
+      "section": "Section 3, Tamil Nadu Money Lenders Act 1957",
+      "plain_explanation": "Any person charging interest on a loan must hold a valid government license. If the license number is not mentioned in the agreement, ask for it. An unlicensed lender has limited legal standing to enforce repayment.",
+      "counter_message": "Under Section 3 of the Tamil Nadu Money Lenders Act 1957, any person engaged in moneylending must hold a valid license. Please provide your license number before I agree to sign this document."
+    },
+    {
+      "clause_type": "written_receipt",
+      "label": "No Receipt for Payments",
+      "legal_limit": "Lender must issue a signed receipt for every payment made",
+      "section": "Section 15, Tamil Nadu Money Lenders Act 1957",
+      "plain_explanation": "Your lender is legally required to give you a signed written receipt for every repayment you make. This protects you from false claims. If there is no receipt clause, insist on one.",
+      "counter_message": "Under Section 15 of the Tamil Nadu Money Lenders Act 1957, the lender is required to issue a signed receipt for every payment. I require an explicit receipt clause to be included in this agreement before I sign."
+    },
+    {
+      "clause_type": "asset_seizure",
+      "label": "Direct Asset or Property Seizure",
+      "legal_limit": "No lender can seize assets or property without a court order — only a court can attach property",
+      "section": "Code of Civil Procedure 1908 — property attachment requires court order",
+      "plain_explanation": "No lender can take your property, phone, jewellery, or any other asset directly if you miss a payment. Only a court can order that. Any clause allowing the lender to seize your belongings without going to court is illegal.",
+      "counter_message": "Asset seizure without a court order is illegal under the Code of Civil Procedure 1908. No private party can attach or seize property without judicial authorization. This clause is unenforceable and I do not agree to it."
+    },
+    {
+      "clause_type": "penalty_clause",
+      "label": "Disproportionate Late Payment Penalty",
+      "legal_limit": "Penalty must be a genuine pre-estimate of loss — total interest and penalties cannot exceed the principal amount",
+      "section": "Section 74, Indian Contract Act 1872 and Section 13, Tamil Nadu Money Lenders Act 1957",
+      "plain_explanation": "Late payment penalties must be reasonable and proportionate. The total of all interest and penalties cannot exceed the original amount you borrowed. Very large or punitive penalty clauses are not enforceable.",
+      "counter_message": "Under Section 74 of the Indian Contract Act 1872, penalty clauses must represent a genuine pre-estimate of loss and cannot be punitive. The penalty stated in this agreement is disproportionate. I request it be revised to a reasonable amount not exceeding one month's interest."
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "state": "Tamil Nadu",
+  "act": "Tamil Nadu Buildings (Lease and Rent Control) Act, 1960",
+  "clauses": [
+    {
+      "clause_type": "security_deposit",
+      "label": "Security Deposit / Advance",
+      "legal_limit": "Maximum 3 months rent as advance",
+      "section": "Section 13, Tamil Nadu Buildings (Lease and Rent Control) Act 1960",
+      "plain_explanation": "Your landlord can only ask for up to 3 months rent as advance. Anything above that is not legally enforceable in Tamil Nadu.",
+      "counter_message": "As per Section 13 of the Tamil Nadu Buildings (Lease and Rent Control) Act 1960, the maximum advance rent permitted is 3 months. I am only agreeable to paying 3 months rent as advance deposit and request that this clause be revised accordingly."
+    },
+    {
+      "clause_type": "eviction_notice",
+      "label": "Eviction Notice Period",
+      "legal_limit": "Eviction requires an order from the Rent Controller — direct eviction by landlord is illegal",
+      "section": "Sections 10 to 14, Tamil Nadu Buildings (Lease and Rent Control) Act 1960",
+      "plain_explanation": "Your landlord cannot evict you directly. They must file a petition with the Rent Controller and obtain a legal order. Any clause saying they can remove you without a court process is not valid.",
+      "counter_message": "Under Sections 10 to 14 of the Tamil Nadu Buildings (Lease and Rent Control) Act 1960, eviction requires an order from the Rent Controller. A clause permitting direct eviction by the landlord is unenforceable and I do not agree to it."
+    },
+    {
+      "clause_type": "rent_increase",
+      "label": "Unilateral Rent Increase",
+      "legal_limit": "Rent revision requires application to and approval from the Rent Controller",
+      "section": "Section 4, Tamil Nadu Buildings (Lease and Rent Control) Act 1960",
+      "plain_explanation": "Your landlord cannot increase rent on their own decision. Any rent increase must go through the Rent Controller. A clause allowing the landlord to raise rent without this process is illegal.",
+      "counter_message": "Rent increases without Rent Controller approval are invalid under Section 4 of the Tamil Nadu Buildings (Lease and Rent Control) Act 1960. I do not agree to any clause permitting unilateral rent revision by the landlord."
+    },
+    {
+      "clause_type": "deposit_forfeiture",
+      "label": "Deposit Forfeiture",
+      "legal_limit": "Deposit must be returned on vacating, minus only proven damages",
+      "section": "Section 13, Tamil Nadu Buildings (Lease and Rent Control) Act 1960",
+      "plain_explanation": "Your landlord must return your deposit when you vacate. They can only deduct amounts for actual, proven damages. A clause saying your deposit is forfeited automatically is not valid.",
+      "counter_message": "Blanket deposit forfeiture is not permitted under Section 13 of the Tamil Nadu Buildings (Lease and Rent Control) Act 1960. Any deductions must correspond to actual proven damages. I request this clause be removed or revised."
+    },
+    {
+      "clause_type": "lock_in_period",
+      "label": "Lock-in Period with Heavy Penalty",
+      "legal_limit": "No statutory lock-in period — must be mutually agreed and reasonable. Penalties beyond 2 months rent are considered disproportionate.",
+      "section": "Indian Contract Act 1872, Section 74 — penalty must be genuine pre-estimate of loss",
+      "plain_explanation": "A lock-in period with very large financial penalties for leaving early is considered an unfair contract term. Penalties must be a reasonable, genuine estimate of actual loss — not a punishment.",
+      "counter_message": "Under Section 74 of the Indian Contract Act 1872, penalty clauses must be a genuine pre-estimate of actual loss and cannot be punitive. I propose a maximum 2-month notice period in place of the current lock-in penalty and request this clause be revised."
+    },
+    {
+      "clause_type": "maintenance_responsibility",
+      "label": "Tenant Responsible for Structural Repairs",
+      "legal_limit": "Major structural repairs are the landlord's legal responsibility",
+      "section": "Section 22, Tamil Nadu Buildings (Lease and Rent Control) Act 1960",
+      "plain_explanation": "You are only responsible for minor day-to-day maintenance. Major repairs such as walls, roof, plumbing structure, and electrical fittings are your landlord's duty by law. A clause shifting this to you is not enforceable.",
+      "counter_message": "Under Section 22 of the Tamil Nadu Buildings (Lease and Rent Control) Act 1960, structural and major repairs are the landlord's responsibility. I do not accept a clause placing this obligation on the tenant."
+    }
+  ]
+}
