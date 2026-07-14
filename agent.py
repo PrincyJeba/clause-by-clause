@@ -8,7 +8,7 @@ import datetime
 load_dotenv()
 
 client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
-MODEL = "gemini-2.0-flash"
+MODEL = "gemini-2.5-flash-lite"
 
 with open("rules/rental_tn.json") as f:
     RENTAL_RULES = json.load(f)
