@@ -1,62 +1,62 @@
 # Clause by Clause
 
-**Every signature is a risk nobody explained.**
+A legal-literacy tool for Tamil Nadu residents: paste a clause from a
+rental agreement or loan note, get a plain-language risk check against
+Tamil Nadu law, and either draft a counter-message or file a complaint
+with your District Legal Services Authority.
 
-An agentic AI for vernacular legal and contract literacy in Tamil Nadu.
-Reads your contract clause, checks it against Tamil Nadu law, and acts on it —
-drafting a counter-message or sending a complaint to free legal aid (DLSA).
+## Architecture
 
-## What It Does
+```
+backend/
+  main.py            App assembly. Serves the API and the frontend.
+  config.py          All env vars and paths, in one place.
+  routers/           HTTP layer — parses requests, calls services, returns JSON.
+    analyze.py         POST /api/analyze
+    complaint.py        POST /api/complaint, POST /api/send-complaint
+    dlsa.py               GET  /api/dlsa/{district}
+  services/          Business logic. No HTTP or LLM leakage between them.
+    rules_service.py    Reads rental_tn.json / loan_tn.json / dlsa_tn.json.
+    dlsa_service.py       Builds the complaint letter text.
+    agent_service.py       Talks to Gemini, orchestrates tool calls.
+    email_service.py        Sends the complaint via Gmail SMTP.
+  schemas/            Pydantic request/response contracts.
+  rules/, data/       Your rule base JSON (sample data included — replace
+                      with your real files, same schema, drop-in).
 
-1. User pastes a clause from a rental agreement or loan note
-2. Agent checks it against Tamil Nadu Buildings Act 1960 / Money Lenders Act 1957
-3. If high risk: user chooses to send a counter-message OR report to DLSA
-4. For DLSA path: agent drafts a formal complaint and sends the email
+frontend/
+  index.html          Single page, plain HTML/CSS/JS (no build step).
+  css/style.css        Mobile-first, large touch targets.
+  js/api.js             Fetch wrappers — one function per backend endpoint.
+  js/app.js               State + one render function per screen.
+```
 
-## Tech Stack
+Why this split: each service does one job and doesn't know about HTTP.
+Routers only translate between HTTP and services. If you swap Gemini for
+another model, or the JSON rule base for a database, or the frontend for
+React later, you touch one layer, not the whole app.
 
-- Streamlit (frontend + hosting)
-- OpenAI API with tool-calling (agent loop)
-- Structured JSON rule base (Tamil Nadu laws)
-- smtplib via Gmail (email sending)
-- Web Speech API (voice input, browser-native)
+## Run it
 
-## Run Locally
+```bash
+cd backend
+python -m venv venv && source venv/bin/activate   # optional but recommended
+pip install -r requirements.txt
+cp .env.example .env
+# edit .env: add your GOOGLE_API_KEY (free at aistudio.google.com)
+#            add GMAIL_USER / GMAIL_APP_PASSWORD if you want email sending to work
 
-1. Clone the repo
-   git clone https://github.com/YOUR_USERNAME/clause-by-clause.git
-   cd clause-by-clause
+uvicorn main:app --reload
+```
 
-2. Install dependencies
-   pip install -r requirements.txt
+Open http://localhost:8000 — the frontend is served from the same
+process, so there's nothing else to run.
 
-3. Set up environment variables
-   Copy .env.example to .env and fill in your values:
-   - OPENAI_API_KEY: your OpenAI API key
-   - GMAIL_USER: your Gmail address
-   - GMAIL_APP_PASSWORD: 16-character Gmail App Password
-     (Generate at myaccount.google.com > Security > App Passwords)
+## Before your real demo
 
-4. Run the app
-   streamlit run app.py
-
-## Legal Scope
-
-- Document types: Rental Agreements, Informal Loan Notes
-- State: Tamil Nadu
-- Laws: TN Buildings (Lease and Rent Control) Act 1960,
-         TN Money Lenders Act 1957, Indian Contract Act 1872
-- Legal aid: Tamil Nadu State Legal Services Authority (TNSLA)
-- Free helpline: 15100
-
-## Disclaimer
-
-This tool is not a substitute for legal advice.
-For serious or complex situations, contact your nearest DLSA
-or call the free legal aid helpline: 15100.
-
-## Hackathon
-
-Meesho ScriptedBy Her 2.0 - 2026
-Theme: Building for Bharat with the Power of Agentic AI
-Submitted by: Jeba Princy J, Thiagarajar College of Engineering, Madurai
+- Replace `backend/rules/rental_tn.json`, `backend/rules/loan_tn.json`,
+  and `backend/data/dlsa_tn.json` with your actual rule base and DLSA
+  directory — the sample data here is illustrative, not verified legal
+  content. Same schema, so it's a straight swap.
+- Set a real `GOOGLE_API_KEY` before testing the analyze flow — it's a
+  hard dependency, the app will fail to start without one.

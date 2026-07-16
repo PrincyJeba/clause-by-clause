@@ -1,0 +1,27 @@
+{
+  "helpline": "15100",
+  "general_email": "tnslsa@tn.gov.in",
+  "offices": [
+    {
+      "district": "Chennai",
+      "office": "District Legal Services Authority, Chennai",
+      "address": "High Court Buildings, Chennai - 600 104",
+      "phone": "044-25342441",
+      "email": "dlsachennai@tn.gov.in"
+    },
+    {
+      "district": "Coimbatore",
+      "office": "District Legal Services Authority, Coimbatore",
+      "address": "District Court Complex, Coimbatore - 641018",
+      "phone": "0422-2301444",
+      "email": "dlsacoimbatore@tn.gov.in"
+    },
+    {
+      "district": "Madurai",
+      "office": "District Legal Services Authority, Madurai",
+      "address": "District Court Complex, Madurai - 625020",
+      "phone": "0452-2560700",
+      "email": "dlsamadurai@tn.gov.in"
+    }
+  ]
+}
