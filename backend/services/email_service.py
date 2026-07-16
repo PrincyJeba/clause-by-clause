@@ -1,16 +1,20 @@
 """
-Sends the DLSA complaint by email. Isolated from everything else so it
-can be swapped for a different provider (e.g. SendGrid) without
+Sends the DLSA complaint via the Brevo HTTP API. Isolated from
+everything else so it can be swapped for another provider without
 touching routers or the agent logic.
+
+Uses HTTPS (port 443), not SMTP — required for hosts like Render's
+free tier that block outbound SMTP ports (25/465/587).
+
+Brevo only requires a single verified sender address (no domain/DNS
+ownership needed), and once verified you can send to any recipient —
+which matters here since the DLSA office address changes per district.
 """
-import smtplib
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
+import requests
 
-from config import GMAIL_USER, GMAIL_APP_PASSWORD
+from config import BREVO_API_KEY, BREVO_SENDER_EMAIL, BREVO_SENDER_NAME
 
-SMTP_HOST = "smtp.gmail.com"
-SMTP_PORT = 587
+BREVO_URL = "https://api.brevo.com/v3/smtp/email"
 
 
 def send_dlsa_email(
@@ -20,30 +24,43 @@ def send_dlsa_email(
     complaint_text: str,
     dlsa_office: str,
 ) -> dict:
-    if not GMAIL_USER or not GMAIL_APP_PASSWORD:
+    if not BREVO_API_KEY or not BREVO_SENDER_EMAIL:
         return {
             "success": False,
-            "error": "Email is not configured on the server (missing GMAIL_USER / GMAIL_APP_PASSWORD).",
+            "error": "Email is not configured on the server (missing BREVO_API_KEY or BREVO_SENDER_EMAIL).",
         }
+
+    payload = {
+        "sender": {"name": BREVO_SENDER_NAME, "email": BREVO_SENDER_EMAIL},
+        "to": [{"email": to_address}],
+        "cc": [{"email": user_email}],
+        "subject": subject,
+        "textContent": complaint_text,
+    }
+    headers = {
+        "api-key": BREVO_API_KEY,
+        "content-type": "application/json",
+        "accept": "application/json",
+    }
 
     try:
-        msg = MIMEMultipart()
-        msg["From"] = GMAIL_USER
-        msg["To"] = to_address
-        msg["Cc"] = user_email
-        msg["Subject"] = subject
-        msg.attach(MIMEText(complaint_text, "plain"))
+        response = requests.post(BREVO_URL, json=payload, headers=headers, timeout=15)
 
-        with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
-            server.starttls()
-            server.login(GMAIL_USER, GMAIL_APP_PASSWORD)
-            server.sendmail(GMAIL_USER, [to_address, user_email], msg.as_string())
+        if response.status_code in (200, 201):
+            return {
+                "success": True,
+                "sent_to": to_address,
+                "cc": user_email,
+                "dlsa_office": dlsa_office,
+            }
 
-        return {
-            "success": True,
-            "sent_to": to_address,
-            "cc": user_email,
-            "dlsa_office": dlsa_office,
-        }
-    except Exception as e:
+        # Brevo returns a clear "message" field here, e.g. when the sender
+        # isn't verified yet, or the daily free-tier limit is hit.
+        try:
+            detail = response.json().get("message", response.text)
+        except ValueError:
+            detail = response.text or "no response body"
+        return {"success": False, "error": f"Brevo API error ({response.status_code}): {detail}"}
+
+    except requests.RequestException as e:
         return {"success": False, "error": str(e)}

@@ -12,10 +12,14 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent
 
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
-GEMINI_MODEL = "gemini-3-flash-preview"
+GEMINI_MODEL = "gemini-2.0-flash"
 
-GMAIL_USER = os.getenv("GMAIL_USER")
-GMAIL_APP_PASSWORD = os.getenv("GMAIL_APP_PASSWORD")
+BREVO_API_KEY = os.getenv("BREVO_API_KEY")
+# Must be an email address you've verified in Brevo (Settings > Senders,
+# Domains & Dedicated IPs > Senders). No domain/DNS ownership needed —
+# just click the verification link Brevo emails to that address once.
+BREVO_SENDER_EMAIL = os.getenv("BREVO_SENDER_EMAIL")
+BREVO_SENDER_NAME = os.getenv("BREVO_SENDER_NAME", "Clause by Clause")
 
 RENTAL_RULES_PATH = BASE_DIR / "rules" / "rental_tn.json"
 LOAN_RULES_PATH = BASE_DIR / "rules" / "loan_tn.json"
