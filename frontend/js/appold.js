@@ -21,7 +21,6 @@ const SAMPLES = {
 
 const state = {
   screen: "input",
-  history: [], // stack of previous screen names, for the back arrow
   inputMode: "text", // "text" | "image"
   docType: "rental",
   district: "Chennai",
@@ -33,7 +32,6 @@ const state = {
   imageClauses: [],
   imageSummary: null,
   selectedClauseIndex: null, // which imageClauses[] entry is "active" for counter/DLSA screens
-  bulkMode: false, // true when acting on ALL risky clauses from an image result at once
   complaintData: {},
   userName: "",
   userEmail: "",
@@ -45,7 +43,6 @@ const root = document.getElementById("app-main");
 function reset() {
   Object.assign(state, {
     screen: "input",
-    history: [],
     clauseText: "",
     result: {},
     imageBase64: null,
@@ -54,7 +51,6 @@ function reset() {
     imageClauses: [],
     imageSummary: null,
     selectedClauseIndex: null,
-    bulkMode: false,
     complaintData: {},
     userName: "",
     userEmail: "",
@@ -63,63 +59,24 @@ function reset() {
   render();
 }
 
-// Navigate forward to a new screen, remembering where we came from so the
-// back arrow can return to it.
-function goTo(screen) {
-  state.history.push(state.screen);
-  state.screen = screen;
-  render();
-}
-
-// Navigate to whatever screen we were on before. Does nothing if there's
-// nowhere to go back to (e.g. already on the first screen).
-function goBack() {
-  const prev = state.history.pop();
-  if (prev) {
-    state.screen = prev;
-    render();
-  }
-}
-
-// All clauses from an image result that came back HIGH risk.
-function highRiskClauses() {
-  return state.imageClauses.filter((c) => c.risk_level === "HIGH");
-}
-
-// A synthetic "clause" that stitches together every risky clause from an
-// image result, so the counter-message / DLSA-complaint screens can treat
-// "all of them at once" the same way they treat a single clause.
-function combinedClause() {
-  const risky = highRiskClauses();
-  const numbered = (fn) =>
-    risky.map((c, i) => `${i + 1}. ${prettyClauseType(c.clause_type)}: ${fn(c)}`).join("\n\n");
-
-  return {
-    clause_type: "multiple_clauses",
-    clause_text: numbered((c) => c.clause_text || "(text not captured)"),
-    plain_explanation: numbered((c) => c.plain_explanation || ""),
-    legal_citation: risky.map((c) => c.legal_citation).filter(Boolean).join("; "),
-    counter_message: risky
-      .map((c, i) => `${i + 1}. Regarding the ${prettyClauseType(c.clause_type).toLowerCase()}:\n${c.counter_message || ""}`)
-      .join("\n\n"),
-  };
-}
-
-// Returns the clause data currently in play: every risky clause combined
-// (bulk mode), one clause picked from an image result, or the single
-// pasted-text result.
+// Returns the clause data currently in play, whether we're in single-clause
+// (pasted text) mode or looking at one clause picked from an image result.
 function activeClause() {
-  if (state.bulkMode) return combinedClause();
   return state.selectedClauseIndex !== null
     ? state.imageClauses[state.selectedClauseIndex]
     : state.result;
 }
 
 function activeClauseText() {
-  if (state.bulkMode) return combinedClause().clause_text;
   return state.selectedClauseIndex !== null
     ? state.imageClauses[state.selectedClauseIndex].clause_text || ""
     : state.clauseText;
+}
+
+// Where "go back" / "check another clause" should return to, depending on
+// whether the current flow started from pasted text or an uploaded photo.
+function resultScreenName() {
+  return state.selectedClauseIndex !== null ? "imageResult" : "result";
 }
 
 function esc(str) {
@@ -140,18 +97,6 @@ function render() {
   };
   root.innerHTML = "";
   screens[state.screen]();
-  renderBackArrow();
-}
-
-// A back arrow shown above every screen except the very first one, wired
-// to the history stack built up by goTo().
-function renderBackArrow() {
-  if (state.history.length === 0) return;
-  const bar = document.createElement("div");
-  bar.className = "back-nav";
-  bar.innerHTML = `<button type="button" id="backArrowBtn" class="btn-back" aria-label="Go back">&#8592; Back</button>`;
-  root.insertBefore(bar, root.firstChild);
-  document.getElementById("backArrowBtn").onclick = goBack;
 }
 
 // ---- Screen 1: Input --------------------------------------------------
@@ -292,8 +237,8 @@ async function runTextAnalysis() {
     const result = await Api.analyzeClause(text, state.docType, state.district);
     state.result = result;
     state.selectedClauseIndex = null;
-    state.bulkMode = false;
-    goTo("result");
+    state.screen = "result";
+    render();
   } catch (err) {
     document.getElementById("analyzeStatus").innerHTML =
       `<p class="panel error">Something went wrong: ${esc(err.message)}</p>`;
@@ -327,8 +272,8 @@ async function runImageAnalysis() {
     }
     state.imageClauses = result.clauses || [];
     state.imageSummary = result.summary;
-    state.bulkMode = false;
-    goTo("imageResult");
+    state.screen = "imageResult";
+    render();
   } catch (err) {
     document.getElementById("analyzeStatus").innerHTML =
       `<p class="panel error">Something went wrong: ${esc(err.message)}</p>`;
@@ -376,8 +321,14 @@ function renderResult() {
         your nearest DLSA or call the free helpline: 15100.
       </div>
     `;
-    document.getElementById("toCounter").onclick = () => goTo("counter");
-    document.getElementById("toDlsa").onclick = () => goTo("dlsaForm");
+    document.getElementById("toCounter").onclick = () => {
+      state.screen = "counter";
+      render();
+    };
+    document.getElementById("toDlsa").onclick = () => {
+      state.screen = "dlsaForm";
+      render();
+    };
   } else {
     root.innerHTML = `
       <span class="stamp low">Standard clause</span>
@@ -444,18 +395,6 @@ function renderImageResult() {
     })
     .join("");
 
-  const bulkSection = highCount > 1 ? `
-    <div class="panel dlsa">
-      <p style="font-weight:600; margin-top:0">Deal with all ${highCount} risky clauses at once</p>
-      <p class="muted" style="font-size:0.9rem">Instead of going one by one, you can send a single
-      combined counter-message or a single combined DLSA complaint that covers every risky clause.</p>
-      <div class="btn-row">
-        <button class="btn-primary" id="bulkCounter">Counter-message for all</button>
-        <button class="btn-gold" id="bulkDlsa">Escalate all to DLSA</button>
-      </div>
-    </div>
-  ` : "";
-
   root.innerHTML = `
     <h2>${clauses.length} clause${clauses.length > 1 ? "s" : ""} found</h2>
     <p class="muted">${highCount > 0
@@ -464,8 +403,6 @@ function renderImageResult() {
     ${state.imageSummary ? `<div class="panel citation">${esc(state.imageSummary)}</div>` : ""}
 
     ${cards}
-
-    ${bulkSection}
 
     <button class="btn-primary" id="another" style="margin-top:1rem">Check another document</button>
 
@@ -478,35 +415,17 @@ function renderImageResult() {
   root.querySelectorAll('[data-action="counter"]').forEach((btn) => {
     btn.onclick = () => {
       state.selectedClauseIndex = parseInt(btn.dataset.index, 10);
-      state.bulkMode = false;
-      goTo("counter");
+      state.screen = "counter";
+      render();
     };
   });
   root.querySelectorAll('[data-action="dlsa"]').forEach((btn) => {
     btn.onclick = () => {
       state.selectedClauseIndex = parseInt(btn.dataset.index, 10);
-      state.bulkMode = false;
-      goTo("dlsaForm");
+      state.screen = "dlsaForm";
+      render();
     };
   });
-
-  const bulkCounterBtn = document.getElementById("bulkCounter");
-  if (bulkCounterBtn) {
-    bulkCounterBtn.onclick = () => {
-      state.selectedClauseIndex = null;
-      state.bulkMode = true;
-      goTo("counter");
-    };
-  }
-  const bulkDlsaBtn = document.getElementById("bulkDlsa");
-  if (bulkDlsaBtn) {
-    bulkDlsaBtn.onclick = () => {
-      state.selectedClauseIndex = null;
-      state.bulkMode = true;
-      goTo("dlsaForm");
-    };
-  }
-
   document.getElementById("another").onclick = reset;
 }
 
@@ -526,12 +445,10 @@ function truncate(str, max) {
 
 function renderCounter() {
   const msg = (activeClause().counter_message) || "";
-  const bulk = state.bulkMode;
   root.innerHTML = `
-    <h2>${bulk ? "Counter-message for all risky clauses" : "Counter-message"}</h2>
-    <p class="muted">${bulk
-      ? "Drafted based on Tamil Nadu law, one section per risky clause. Edit it before sending via WhatsApp, SMS, or in person."
-      : "Drafted based on Tamil Nadu law. Edit it before sending via WhatsApp, SMS, or in person."}</p>
+    <h2>Counter-message</h2>
+    <p class="muted">Drafted based on Tamil Nadu law. Edit it before sending via
+    WhatsApp, SMS, or in person.</p>
 
     <textarea id="counterText" style="min-height:200px">${esc(msg)}</textarea>
 
@@ -541,10 +458,10 @@ function renderCounter() {
     </div>
 
     <p class="muted" style="margin-top:1rem">If the other party refuses to change
-    ${bulk ? "these clauses" : "this clause"}, you can escalate to free legal aid.</p>
+    this clause, you can escalate to free legal aid.</p>
 
     <div class="btn-row">
-      <button class="btn-gold" id="toDlsa">${bulk ? "Escalate all to DLSA" : "Escalate to DLSA"}</button>
+      <button class="btn-gold" id="toDlsa">Escalate to DLSA</button>
       <button class="btn-text" id="another">Check another clause</button>
     </div>
 
@@ -559,19 +476,20 @@ function renderCounter() {
   document.getElementById("downloadBtn").onclick = () => {
     downloadText(document.getElementById("counterText").value, "counter_message.txt");
   };
-  document.getElementById("toDlsa").onclick = () => goTo("dlsaForm");
+  document.getElementById("toDlsa").onclick = () => {
+    state.screen = "dlsaForm";
+    render();
+  };
   document.getElementById("another").onclick = reset;
 }
 
 // ---- Screen 4: DLSA form -------------------------------------------------
 
 function renderDlsaForm() {
-  const bulk = state.bulkMode;
   root.innerHTML = `
     <h2>Report to free legal aid</h2>
-    <p class="muted">${bulk
-      ? "A single formal complaint covering every risky clause will be drafted for the DLSA office in your district."
-      : "A formal complaint will be drafted for the DLSA office in your district."}</p>
+    <p class="muted">A formal complaint will be drafted for the DLSA office in
+    your district.</p>
     <div id="dlsaInfo" class="panel dlsa">Loading office details…</div>
 
     <label for="userName">Your full name</label>
@@ -583,6 +501,7 @@ function renderDlsaForm() {
 
     <button class="btn-primary" id="draftBtn">Draft the complaint email</button>
     <div id="dlsaStatus"></div>
+    <button class="btn-text" id="back">Go back</button>
   `;
 
   Api.getDlsaOffice(state.district)
@@ -597,6 +516,11 @@ function renderDlsaForm() {
       document.getElementById("dlsaInfo").textContent =
         "Could not load office details, but you can still continue.";
     });
+
+  document.getElementById("back").onclick = () => {
+    state.screen = resultScreenName();
+    render();
+  };
 
   document.getElementById("draftBtn").onclick = async () => {
     const name = document.getElementById("userName").value.trim();
@@ -624,7 +548,8 @@ function renderDlsaForm() {
         legal_citation: clause.legal_citation || "",
       });
       state.complaintData = complaintData;
-      goTo("emailPreview");
+      state.screen = "emailPreview";
+      render();
     } catch (err) {
       status.innerHTML = `<p class="panel error">${esc(err.message)}</p>`;
     }
@@ -635,8 +560,6 @@ function renderDlsaForm() {
 
 function renderEmailPreview() {
   const c = state.complaintData;
-  const bulk = state.bulkMode;
-  const subject = `Legal Complaint - Illegal Clause${bulk ? "s" : ""} in Agreement - ${state.district}`;
   root.innerHTML = `
     <h2>Review your complaint email</h2>
     <p class="muted">This will be sent to the DLSA office. You'll receive a copy.
@@ -644,12 +567,13 @@ function renderEmailPreview() {
 
     <p><strong>To:</strong> ${esc(c.dlsa_email)}<br>
     <strong>Cc:</strong> ${esc(state.userEmail)}<br>
-    <strong>Subject:</strong> ${esc(subject)}</p>
+    <strong>Subject:</strong> Legal Complaint - Illegal Clause in Agreement - ${esc(state.district)}</p>
 
     <div class="email-preview">${esc(c.complaint_text)}</div>
 
     <button class="btn-primary" id="sendBtn">Send this email</button>
     <button class="btn-outline" id="downloadBtn">Download and send yourself</button>
+    <button class="btn-text" id="back">Go back</button>
     <div id="sendStatus"></div>
 
     <div class="disclaimer">
@@ -661,6 +585,11 @@ function renderEmailPreview() {
   document.getElementById("downloadBtn").onclick = () =>
     downloadText(c.complaint_text, "dlsa_complaint.txt");
 
+  document.getElementById("back").onclick = () => {
+    state.screen = "dlsaForm";
+    render();
+  };
+
   document.getElementById("sendBtn").onclick = async () => {
     const status = document.getElementById("sendStatus");
     status.innerHTML =
@@ -669,12 +598,13 @@ function renderEmailPreview() {
       const sendResult = await Api.sendComplaint({
         to_address: c.dlsa_email,
         user_email: state.userEmail,
-        subject,
+        subject: `Legal Complaint - Illegal Clause in Agreement - ${state.district}`,
         complaint_text: c.complaint_text,
         dlsa_office: c.dlsa_office,
       });
       state.sendResult = sendResult;
-      goTo("confirmation");
+      state.screen = "confirmation";
+      render();
     } catch (err) {
       status.innerHTML = `<p class="panel error">${esc(err.message)}</p>`;
     }
