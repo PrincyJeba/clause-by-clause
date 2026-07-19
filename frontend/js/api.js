@@ -20,6 +20,9 @@ const Api = {
   analyzeClause: (clause_text, doc_type, district) =>
     postJSON("/analyze", { clause_text, doc_type, district }),
 
+  analyzeImage: (image_base64, mime_type, doc_type, district) =>
+    postJSON("/analyze-image", { image_base64, mime_type, doc_type, district }),
+
   createComplaint: (payload) => postJSON("/complaint", payload),
 
   sendComplaint: (payload) => postJSON("/send-complaint", payload),

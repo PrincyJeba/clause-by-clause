@@ -41,6 +41,14 @@ check_clause_declaration = types.FunctionDeclaration(
                 enum=["rental", "loan"],
                 description="Whether this is from a rental agreement or a loan note.",
             ),
+            "clause_text": types.Schema(
+                type=types.Type.STRING,
+                description=(
+                    "The exact text of this clause as it appears in the source "
+                    "document, verbatim or as close as possible. Required when "
+                    "reading from an image; optional otherwise."
+                ),
+            ),
         },
         required=["clause_type", "doc_type"],
     ),
@@ -200,6 +208,119 @@ def analyze_clause(clause_text: str, doc_type: str, district: str) -> dict:
 
                 elif fn_name == "draft_counter_message":
                     result["counter_message"] = tool_output.get("counter_message")
+
+                function_response_parts.append(
+                    types.Part(
+                        function_response=types.FunctionResponse(
+                            name=fn_name, response={"result": tool_output}
+                        )
+                    )
+                )
+
+            contents.append(types.Content(role="user", parts=function_response_parts))
+
+    except Exception as e:
+        result["error"] = str(e)
+
+    return result
+
+
+def analyze_contract_image(image_bytes: bytes, mime_type: str, doc_type: str, district: str) -> dict:
+    """
+    Same tool-calling pattern as analyze_clause, but a document photo can
+    contain several clauses at once. Gemini is instructed to call
+    check_clause_against_law once per distinct clause it finds, and this
+    function collects every call into a list instead of a single result.
+    """
+    act_name = rules_service.act_name(doc_type)
+
+    system_prompt = (
+        f"You are the Clause by Clause agent, a legal assistant for Tamil Nadu, India. "
+        f"You will be shown a photo of a {doc_type} agreement. The applicable Tamil "
+        f"Nadu law is: {act_name}. "
+        f"Read all the text in the image carefully, even if it is angled, slightly "
+        f"blurry, handwritten, or has uneven lighting. "
+        f"Identify EVERY distinct clause in the document that matches one of the known "
+        f"clause types, and call check_clause_against_law separately for EACH one you "
+        f"find — do not skip any, and do not merge multiple clauses into a single call. "
+        f"Always pass the exact clause_text you read for each clause. "
+        f"After checking a clause, if its risk is HIGH, call draft_counter_message for "
+        f"that same clause_type before moving to the next clause. "
+        f"If part of the image is unreadable, skip only that part rather than guessing, "
+        f"and mention it in your final summary. "
+        f"Once you have checked every clause you can find, give a short plain-English "
+        f"summary of what you found overall — do not use legal jargon."
+    )
+
+    result = {"clauses": [], "summary": None, "error": None}
+
+    contents = [
+        types.Content(
+            role="user",
+            parts=[
+                types.Part(
+                    text=f"Analyze this {doc_type} agreement photo. My district in Tamil Nadu: {district}"
+                ),
+                types.Part.from_bytes(data=image_bytes, mime_type=mime_type),
+            ],
+        )
+    ]
+
+    try:
+        for _ in range(12):  # a multi-clause document needs more tool-call rounds
+            response = client.models.generate_content(
+                model=GEMINI_MODEL,
+                contents=contents,
+                config=types.GenerateContentConfig(
+                    system_instruction=system_prompt,
+                    tools=[TOOLS],
+                    temperature=0.2,
+                ),
+            )
+
+            content = response.candidates[0].content
+            has_function_calls = any(
+                getattr(part, "function_call", None) for part in content.parts
+            )
+
+            if not has_function_calls:
+                for part in content.parts:
+                    if getattr(part, "text", None):
+                        result["summary"] = part.text
+                break
+
+            contents.append(content)
+            function_response_parts = []
+
+            for part in content.parts:
+                if not getattr(part, "function_call", None):
+                    continue
+                fn_name = part.function_call.name
+                fn_args = dict(part.function_call.args)
+                tool_output = _execute_tool(fn_name, fn_args)
+
+                if fn_name == "check_clause_against_law":
+                    result["clauses"].append({
+                        "clause_type": fn_args.get("clause_type"),
+                        "clause_text": fn_args.get("clause_text", ""),
+                        "risk_level": tool_output.get("risk_level"),
+                        "legal_limit": tool_output.get("legal_limit"),
+                        "legal_citation": tool_output.get("section") if tool_output.get("found") else None,
+                        "plain_explanation": (
+                            tool_output.get("plain_explanation")
+                            if tool_output.get("found")
+                            else tool_output.get("note")
+                        ),
+                        "counter_message": None,
+                    })
+
+                elif fn_name == "draft_counter_message":
+                    # Match to the most recent clause of the same type that
+                    # doesn't have a counter-message yet.
+                    for entry in reversed(result["clauses"]):
+                        if entry["clause_type"] == fn_args.get("clause_type") and entry["counter_message"] is None:
+                            entry["counter_message"] = tool_output.get("counter_message")
+                            break
 
                 function_response_parts.append(
                     types.Part(

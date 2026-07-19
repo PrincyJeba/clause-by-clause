@@ -10,6 +10,13 @@ class AnalyzeRequest(BaseModel):
     district: str
 
 
+class AnalyzeImageRequest(BaseModel):
+    image_base64: str
+    mime_type: str = "image/jpeg"
+    doc_type: DocType
+    district: str
+
+
 class ComplaintRequest(BaseModel):
     user_name: str
     district: str

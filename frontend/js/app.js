@@ -21,10 +21,17 @@ const SAMPLES = {
 
 const state = {
   screen: "input",
+  inputMode: "text", // "text" | "image"
   docType: "rental",
   district: "Chennai",
   clauseText: "",
   result: {},
+  imageBase64: null,
+  imageMimeType: null,
+  imagePreviewUrl: null,
+  imageClauses: [],
+  imageSummary: null,
+  selectedClauseIndex: null, // which imageClauses[] entry is "active" for counter/DLSA screens
   complaintData: {},
   userName: "",
   userEmail: "",
@@ -38,12 +45,38 @@ function reset() {
     screen: "input",
     clauseText: "",
     result: {},
+    imageBase64: null,
+    imageMimeType: null,
+    imagePreviewUrl: null,
+    imageClauses: [],
+    imageSummary: null,
+    selectedClauseIndex: null,
     complaintData: {},
     userName: "",
     userEmail: "",
     sendResult: null,
   });
   render();
+}
+
+// Returns the clause data currently in play, whether we're in single-clause
+// (pasted text) mode or looking at one clause picked from an image result.
+function activeClause() {
+  return state.selectedClauseIndex !== null
+    ? state.imageClauses[state.selectedClauseIndex]
+    : state.result;
+}
+
+function activeClauseText() {
+  return state.selectedClauseIndex !== null
+    ? state.imageClauses[state.selectedClauseIndex].clause_text || ""
+    : state.clauseText;
+}
+
+// Where "go back" / "check another clause" should return to, depending on
+// whether the current flow started from pasted text or an uploaded photo.
+function resultScreenName() {
+  return state.selectedClauseIndex !== null ? "imageResult" : "result";
 }
 
 function esc(str) {
@@ -56,6 +89,7 @@ function render() {
   const screens = {
     input: renderInput,
     result: renderResult,
+    imageResult: renderImageResult,
     counter: renderCounter,
     dlsaForm: renderDlsaForm,
     emailPreview: renderEmailPreview,
@@ -72,12 +106,19 @@ function renderInput() {
     (d) => `<option value="${d}" ${d === state.district ? "selected" : ""}>${d}</option>`
   ).join("");
 
+  const isImage = state.inputMode === "image";
+
   root.innerHTML = `
-    <h2>Check a clause</h2>
-    <p class="muted">Paste a clause from your rental agreement or loan note.
+    <h2>Check your agreement</h2>
+    <p class="muted">Paste a clause, or upload a photo of the whole document.
     We'll check it against Tamil Nadu law and tell you plainly what it means.</p>
 
-    <div class="row">
+    <div class="btn-row" role="tablist">
+      <button class="${isImage ? "btn-outline" : "btn-primary"}" id="modeText" type="button">Paste text</button>
+      <button class="${isImage ? "btn-primary" : "btn-outline"}" id="modeImage" type="button">Upload photo</button>
+    </div>
+
+    <div class="row" style="margin-top:1rem">
       <div>
         <label for="docType">Document type</label>
         <select id="docType">
@@ -91,18 +132,9 @@ function renderInput() {
       </div>
     </div>
 
-    <label for="clauseText">Paste your clause here</label>
-    <textarea id="clauseText" placeholder="Example: The tenant shall pay 6 months rent as security deposit...">${esc(state.clauseText)}</textarea>
+    <div id="modeBody"></div>
 
-    <details class="samples">
-      <summary>Try a sample clause</summary>
-      <div class="btn-row">
-        <button class="btn-outline" id="sampleRental">Load rental sample</button>
-        <button class="btn-outline" id="sampleLoan">Load loan sample</button>
-      </div>
-    </details>
-
-    <button class="btn-primary" id="analyzeBtn">Check this clause</button>
+    <button class="btn-primary" id="analyzeBtn">${isImage ? "Check this document" : "Check this clause"}</button>
     <div id="analyzeStatus"></div>
 
     <div class="disclaimer">
@@ -114,8 +146,36 @@ function renderInput() {
 
   document.getElementById("docType").onchange = (e) => (state.docType = e.target.value);
   document.getElementById("district").onchange = (e) => (state.district = e.target.value);
-  document.getElementById("clauseText").oninput = (e) => (state.clauseText = e.target.value);
+  document.getElementById("modeText").onclick = () => {
+    state.inputMode = "text";
+    render();
+  };
+  document.getElementById("modeImage").onclick = () => {
+    state.inputMode = "image";
+    render();
+  };
 
+  isImage ? renderImageInputBody() : renderTextInputBody();
+
+  document.getElementById("analyzeBtn").onclick = isImage ? runImageAnalysis : runTextAnalysis;
+}
+
+function renderTextInputBody() {
+  const body = document.getElementById("modeBody");
+  body.innerHTML = `
+    <label for="clauseText">Paste your clause here</label>
+    <textarea id="clauseText" placeholder="Example: The tenant shall pay 6 months rent as security deposit...">${esc(state.clauseText)}</textarea>
+
+    <details class="samples">
+      <summary>Try a sample clause</summary>
+      <div class="btn-row">
+        <button class="btn-outline" id="sampleRental">Load rental sample</button>
+        <button class="btn-outline" id="sampleLoan">Load loan sample</button>
+      </div>
+    </details>
+  `;
+
+  document.getElementById("clauseText").oninput = (e) => (state.clauseText = e.target.value);
   document.getElementById("sampleRental").onclick = () => {
     state.docType = "rental";
     state.clauseText = SAMPLES.rental;
@@ -126,30 +186,99 @@ function renderInput() {
     state.clauseText = SAMPLES.loan;
     render();
   };
+}
 
-  document.getElementById("analyzeBtn").onclick = async () => {
-    const text = state.clauseText.trim();
-    if (!text) {
+function renderImageInputBody() {
+  const body = document.getElementById("modeBody");
+  body.innerHTML = `
+    <label for="imageInput">Photo of your document</label>
+    <input type="file" id="imageInput" accept="image/*" capture="environment" />
+    <p class="muted" style="font-size:0.85rem">Tap to take a photo or choose one from your gallery.
+    Make sure the text is readable — good lighting, not too angled.</p>
+    <div id="imagePreviewWrap"></div>
+  `;
+
+  if (state.imagePreviewUrl) {
+    document.getElementById("imagePreviewWrap").innerHTML = `
+      <img src="${state.imagePreviewUrl}" alt="Selected document photo"
+        style="width:100%;border-radius:10px;margin-top:0.6rem;border:1.5px solid var(--border);" />
+    `;
+  }
+
+  document.getElementById("imageInput").onchange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    state.imageMimeType = file.type || "image/jpeg";
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      // reader.result is "data:image/jpeg;base64,AAAA..." — keep only the payload
+      state.imageBase64 = reader.result.split(",")[1];
+      state.imagePreviewUrl = reader.result;
+      render();
+    };
+    reader.readAsDataURL(file);
+  };
+}
+
+async function runTextAnalysis() {
+  const text = state.clauseText.trim();
+  if (!text) {
+    document.getElementById("analyzeStatus").innerHTML =
+      '<p class="panel error">Please enter a clause first.</p>';
+    return;
+  }
+  const btn = document.getElementById("analyzeBtn");
+  btn.disabled = true;
+  document.getElementById("analyzeStatus").innerHTML =
+    '<div class="spinner"><span class="dot"></span><span class="dot"></span><span class="dot"></span> Checking against Tamil Nadu law...</div>';
+
+  try {
+    const result = await Api.analyzeClause(text, state.docType, state.district);
+    state.result = result;
+    state.selectedClauseIndex = null;
+    state.screen = "result";
+    render();
+  } catch (err) {
+    document.getElementById("analyzeStatus").innerHTML =
+      `<p class="panel error">Something went wrong: ${esc(err.message)}</p>`;
+    btn.disabled = false;
+  }
+}
+
+async function runImageAnalysis() {
+  if (!state.imageBase64) {
+    document.getElementById("analyzeStatus").innerHTML =
+      '<p class="panel error">Please choose a photo first.</p>';
+    return;
+  }
+  const btn = document.getElementById("analyzeBtn");
+  btn.disabled = true;
+  document.getElementById("analyzeStatus").innerHTML =
+    '<div class="spinner"><span class="dot"></span><span class="dot"></span><span class="dot"></span> Reading the document and checking every clause — this can take a bit longer...</div>';
+
+  try {
+    const result = await Api.analyzeImage(
+      state.imageBase64,
+      state.imageMimeType,
+      state.docType,
+      state.district
+    );
+    if (result.error) {
       document.getElementById("analyzeStatus").innerHTML =
-        '<p class="panel error">Please enter a clause first.</p>';
+        `<p class="panel error">${esc(result.error)}</p>`;
+      btn.disabled = false;
       return;
     }
-    const btn = document.getElementById("analyzeBtn");
-    btn.disabled = true;
+    state.imageClauses = result.clauses || [];
+    state.imageSummary = result.summary;
+    state.screen = "imageResult";
+    render();
+  } catch (err) {
     document.getElementById("analyzeStatus").innerHTML =
-      '<div class="spinner"><span class="dot"></span><span class="dot"></span><span class="dot"></span> Checking against Tamil Nadu law...</div>';
-
-    try {
-      const result = await Api.analyzeClause(text, state.docType, state.district);
-      state.result = result;
-      state.screen = "result";
-      render();
-    } catch (err) {
-      document.getElementById("analyzeStatus").innerHTML =
-        `<p class="panel error">Something went wrong: ${esc(err.message)}</p>`;
-      btn.disabled = false;
-    }
-  };
+      `<p class="panel error">Something went wrong: ${esc(err.message)}</p>`;
+    btn.disabled = false;
+  }
 }
 
 // ---- Screen 2: Result ---------------------------------------------------
@@ -221,10 +350,101 @@ function renderResult() {
   }
 }
 
+// ---- Screen 2b: Image result — a list of every clause found -------------
+
+function renderImageResult() {
+  const clauses = state.imageClauses;
+
+  if (!clauses.length) {
+    root.innerHTML = `
+      <h2>No clauses found</h2>
+      <p class="panel error">
+        We couldn't confidently match any clauses in this photo to our rule base.
+        Try a clearer photo — good lighting, the page flat and not angled — or
+        paste the text instead.
+      </p>
+      ${state.imageSummary ? `<p class="muted">${esc(state.imageSummary)}</p>` : ""}
+      <button class="btn-primary" id="another">Try again</button>
+    `;
+    document.getElementById("another").onclick = reset;
+    return;
+  }
+
+  const highCount = clauses.filter((c) => c.risk_level === "HIGH").length;
+
+  const cards = clauses
+    .map((c, i) => {
+      const isHigh = c.risk_level === "HIGH";
+      return `
+        <div class="panel ${isHigh ? "explain" : "confirm"}" style="border-left-color: ${isHigh ? "var(--red)" : "var(--green)"}">
+          <span class="stamp ${isHigh ? "high" : "low"}" style="font-size:0.8rem; padding:0.35rem 0.7rem; margin-bottom:0.5rem;">
+            ${isHigh ? "High risk" : "Standard"}
+          </span>
+          <p style="font-weight:600; margin-top:0.3rem;">${esc(prettyClauseType(c.clause_type))}</p>
+          ${c.clause_text ? `<p class="muted" style="font-size:0.85rem; font-style:italic;">"${esc(truncate(c.clause_text, 140))}"</p>` : ""}
+          ${c.plain_explanation ? `<p style="font-size:0.92rem;">${esc(c.plain_explanation)}</p>` : ""}
+          ${c.legal_citation ? `<p class="muted" style="font-size:0.82rem;">Legal basis: ${esc(c.legal_citation)}</p>` : ""}
+          ${isHigh ? `
+            <div class="btn-row">
+              <button class="btn-primary" data-action="counter" data-index="${i}">Counter-message</button>
+              <button class="btn-gold" data-action="dlsa" data-index="${i}">Report to DLSA</button>
+            </div>
+          ` : ""}
+        </div>
+      `;
+    })
+    .join("");
+
+  root.innerHTML = `
+    <h2>${clauses.length} clause${clauses.length > 1 ? "s" : ""} found</h2>
+    <p class="muted">${highCount > 0
+      ? `${highCount} of them appear to violate Tamil Nadu law.`
+      : "None of them appear to violate Tamil Nadu law."}</p>
+    ${state.imageSummary ? `<div class="panel citation">${esc(state.imageSummary)}</div>` : ""}
+
+    ${cards}
+
+    <button class="btn-primary" id="another" style="margin-top:1rem">Check another document</button>
+
+    <div class="disclaimer">
+      This is not legal advice. For complex or urgent situations, contact
+      your nearest DLSA or call the free helpline: 15100.
+    </div>
+  `;
+
+  root.querySelectorAll('[data-action="counter"]').forEach((btn) => {
+    btn.onclick = () => {
+      state.selectedClauseIndex = parseInt(btn.dataset.index, 10);
+      state.screen = "counter";
+      render();
+    };
+  });
+  root.querySelectorAll('[data-action="dlsa"]').forEach((btn) => {
+    btn.onclick = () => {
+      state.selectedClauseIndex = parseInt(btn.dataset.index, 10);
+      state.screen = "dlsaForm";
+      render();
+    };
+  });
+  document.getElementById("another").onclick = reset;
+}
+
+function prettyClauseType(type) {
+  if (!type) return "Clause";
+  return type
+    .split("_")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+}
+
+function truncate(str, max) {
+  return str.length > max ? str.slice(0, max).trim() + "…" : str;
+}
+
 // ---- Screen 3: Counter-message ------------------------------------------
 
 function renderCounter() {
-  const msg = state.result.counter_message || "";
+  const msg = (activeClause().counter_message) || "";
   root.innerHTML = `
     <h2>Counter-message</h2>
     <p class="muted">Drafted based on Tamil Nadu law. Edit it before sending via
@@ -298,7 +518,7 @@ function renderDlsaForm() {
     });
 
   document.getElementById("back").onclick = () => {
-    state.screen = "result";
+    state.screen = resultScreenName();
     render();
   };
 
@@ -316,15 +536,16 @@ function renderDlsaForm() {
     status.innerHTML =
       '<div class="spinner"><span class="dot"></span><span class="dot"></span><span class="dot"></span> Drafting formal complaint...</div>';
 
+    const clause = activeClause();
     try {
       const complaintData = await Api.createComplaint({
         user_name: name,
         district: state.district,
-        clause_text: state.clauseText,
-        clause_type: state.result.clause_type || "unknown",
+        clause_text: activeClauseText(),
+        clause_type: clause.clause_type || "unknown",
         doc_type: state.docType,
-        plain_explanation: state.result.plain_explanation || "",
-        legal_citation: state.result.legal_citation || "",
+        plain_explanation: clause.plain_explanation || "",
+        legal_citation: clause.legal_citation || "",
       });
       state.complaintData = complaintData;
       state.screen = "emailPreview";

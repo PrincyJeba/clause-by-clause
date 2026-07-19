@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 
 
 class AnalyzeResponse(BaseModel):
@@ -9,6 +9,22 @@ class AnalyzeResponse(BaseModel):
     legal_citation: Optional[str] = None
     plain_explanation: Optional[str] = None
     counter_message: Optional[str] = None
+    summary: Optional[str] = None
+    error: Optional[str] = None
+
+
+class ClauseResult(BaseModel):
+    clause_type: Optional[str] = None
+    clause_text: Optional[str] = None
+    risk_level: Optional[str] = None
+    legal_limit: Optional[str] = None
+    legal_citation: Optional[str] = None
+    plain_explanation: Optional[str] = None
+    counter_message: Optional[str] = None
+
+
+class AnalyzeImageResponse(BaseModel):
+    clauses: List[ClauseResult] = []
     summary: Optional[str] = None
     error: Optional[str] = None
 
