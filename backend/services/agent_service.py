@@ -90,44 +90,70 @@ def _execute_tool(tool_name: str, args: dict, lang: str = "en") -> dict:
                 "legal_limit": localized["legal_limit"],
                 "section": localized["section"],
                 "plain_explanation": localized["plain_explanation"],
+                # Unlocalized originals — always English, regardless of `lang`.
+                # Used for the DLSA complaint letter, which is a formal
+                # submission to a government office and stays in English
+                # no matter what language the app is displaying.
+                "plain_explanation_en": clause["plain_explanation"],
+                "section_en": clause["section"],
                 "act": rules_service.act_name(args["doc_type"], lang),
             }
+        note_en = (
+            "This clause type is not in the current rule base. "
+            "Manual review by a legal professional is recommended."
+        )
+        note_ta = (
+            "இந்த வகை விதி தற்போதைய விதி தளத்தில் இல்லை. "
+            "ஒரு சட்ட நிபுணரின் நேரடி மதிப்பாய்வு பரிந்துரைக்கப்படுகிறது."
+        )
         return {
             "found": False,
             "risk_level": "UNCLEAR",
-            "note": (
-                "இந்த வகை விதி தற்போதைய விதி தளத்தில் இல்லை. "
-                "ஒரு சட்ட நிபுணரின் நேரடி மதிப்பாய்வு பரிந்துரைக்கப்படுகிறது."
-                if lang == "ta"
-                else (
-                    "This clause type is not in the current rule base. "
-                    "Manual review by a legal professional is recommended."
-                )
-            ),
+            "note": note_ta if lang == "ta" else note_en,
+            "note_en": note_en,
         }
 
     if tool_name == "draft_counter_message":
         clause = rules_service.find_clause(args["clause_type"], args["doc_type"])
         if clause:
             localized = rules_service.localize_clause(clause, lang)
-            return {"counter_message": localized["counter_message"]}
-        if lang == "ta":
             return {
-                "counter_message": (
-                    "இந்த விதி தமிழ்நாடு சட்டத்திற்கு இணங்காமல் இருக்கலாம் என்று "
-                    "எனக்கு கவலை உள்ளது. கையொப்பமிடும் முன் இந்த விதியை மறுஆய்வு "
-                    "செய்து திருத்த வேண்டும் என கோருகிறேன்."
-                )
+                "counter_message": localized["counter_message"],
+                "counter_message_en": clause["counter_message"],
+                "counter_message_ta": clause.get("counter_message_ta") or clause["counter_message"],
             }
+        fallback_en = (
+            "I have concerns about this clause as it may not comply with "
+            "applicable Tamil Nadu law. I request that this clause be "
+            "reviewed and revised before I agree to sign this agreement."
+        )
+        fallback_ta = (
+            "இந்த விதி தமிழ்நாடு சட்டத்திற்கு இணங்காமல் இருக்கலாம் என்று "
+            "எனக்கு கவலை உள்ளது. கையொப்பமிடும் முன் இந்த விதியை மறுஆய்வு "
+            "செய்து திருத்த வேண்டும் என கோருகிறேன்."
+        )
         return {
-            "counter_message": (
-                "I have concerns about this clause as it may not comply with "
-                "applicable Tamil Nadu law. I request that this clause be "
-                "reviewed and revised before I agree to sign this agreement."
-            )
+            "counter_message": fallback_ta if lang == "ta" else fallback_en,
+            "counter_message_en": fallback_en,
+            "counter_message_ta": fallback_ta,
         }
 
     return {"error": f"Unknown tool: {tool_name}"}
+
+
+def _summary_language_instruction(lang: str) -> str:
+    """
+    Only governs the one piece of free text Gemini writes itself (the final
+    summary). Everything else in the response comes verbatim from the rule
+    JSON via localize_clause(), so this is the only place a language
+    instruction needs to reach the model.
+    """
+    if lang == "ta":
+        return (
+            "Write your final summary in Tamil (தமிழ்), in simple everyday words, "
+            "not formal or literary Tamil. Do not mix in English sentences."
+        )
+    return "Write your final summary in plain, simple English."
 
 
 # ---------------------------------------------------------------------
@@ -146,12 +172,13 @@ def analyze_clause(clause_text: str, doc_type: str, district: str, lang: str = "
         f"Your task: "
         f"1. Call check_clause_against_law to identify the clause type and evaluate risk. "
         f"2. If risk is HIGH, call draft_counter_message to prepare a response for the user. "
-        f"3. Return a clear, plain-English summary of your findings. "
+        f"3. Return a clear, plain summary of your findings. "
         f"Important rules: "
         f"Always classify the clause into one of the known clause types from the rule base. "
         f"Explain in simple language a person with limited legal literacy can understand. "
         f"Do not use legal jargon in your final summary. "
-        f"Be direct about whether the clause is problematic or not."
+        f"Be direct about whether the clause is problematic or not. "
+        f"{_summary_language_instruction(lang)}"
     )
 
     result = {
@@ -159,8 +186,12 @@ def analyze_clause(clause_text: str, doc_type: str, district: str, lang: str = "
         "risk_level": None,
         "legal_limit": None,
         "legal_citation": None,
+        "legal_citation_en": None,
         "plain_explanation": None,
+        "plain_explanation_en": None,
         "counter_message": None,
+        "counter_message_en": None,
+        "counter_message_ta": None,
         "summary": None,
         "error": None,
     }
@@ -219,10 +250,16 @@ def analyze_clause(clause_text: str, doc_type: str, district: str, lang: str = "
                     result["legal_limit"] = tool_output.get("legal_limit")
                     if tool_output.get("found"):
                         result["legal_citation"] = tool_output.get("section")
+                        result["legal_citation_en"] = tool_output.get("section_en")
                         result["plain_explanation"] = tool_output.get("plain_explanation")
+                        result["plain_explanation_en"] = tool_output.get("plain_explanation_en")
+                    else:
+                        result["plain_explanation_en"] = tool_output.get("note_en")
 
                 elif fn_name == "draft_counter_message":
                     result["counter_message"] = tool_output.get("counter_message")
+                    result["counter_message_en"] = tool_output.get("counter_message_en")
+                    result["counter_message_ta"] = tool_output.get("counter_message_ta")
 
                 function_response_parts.append(
                     types.Part(
@@ -269,7 +306,7 @@ def analyze_contract_image(
         f"sentences only — an overall verdict (e.g. how many clauses are risky, and whether the person "
         f"should sign, negotiate, or avoid signing as-is). Do not use legal jargon, do not repeat the "
         f"detailed explanation of each individual clause (that is shown separately), and do not exceed "
-        f"two sentences."
+        f"two sentences. {_summary_language_instruction(lang)}"
     )
 
     result = {"clauses": [], "summary": None, "error": None}
@@ -326,12 +363,20 @@ def analyze_contract_image(
                         "risk_level": tool_output.get("risk_level"),
                         "legal_limit": tool_output.get("legal_limit"),
                         "legal_citation": tool_output.get("section") if tool_output.get("found") else None,
+                        "legal_citation_en": tool_output.get("section_en") if tool_output.get("found") else None,
                         "plain_explanation": (
                             tool_output.get("plain_explanation")
                             if tool_output.get("found")
                             else tool_output.get("note")
                         ),
+                        "plain_explanation_en": (
+                            tool_output.get("plain_explanation_en")
+                            if tool_output.get("found")
+                            else tool_output.get("note_en")
+                        ),
                         "counter_message": None,
+                        "counter_message_en": None,
+                        "counter_message_ta": None,
                     })
 
                 elif fn_name == "draft_counter_message":
@@ -340,6 +385,8 @@ def analyze_contract_image(
                     for entry in reversed(result["clauses"]):
                         if entry["clause_type"] == fn_args.get("clause_type") and entry["counter_message"] is None:
                             entry["counter_message"] = tool_output.get("counter_message")
+                            entry["counter_message_en"] = tool_output.get("counter_message_en")
+                            entry["counter_message_ta"] = tool_output.get("counter_message_ta")
                             break
 
                 function_response_parts.append(

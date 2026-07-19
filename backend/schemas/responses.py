@@ -7,8 +7,12 @@ class AnalyzeResponse(BaseModel):
     risk_level: Optional[str] = None
     legal_limit: Optional[str] = None
     legal_citation: Optional[str] = None
+    legal_citation_en: Optional[str] = None
     plain_explanation: Optional[str] = None
+    plain_explanation_en: Optional[str] = None
     counter_message: Optional[str] = None
+    counter_message_en: Optional[str] = None
+    counter_message_ta: Optional[str] = None
     summary: Optional[str] = None
     error: Optional[str] = None
 
@@ -19,8 +23,12 @@ class ClauseResult(BaseModel):
     risk_level: Optional[str] = None
     legal_limit: Optional[str] = None
     legal_citation: Optional[str] = None
+    legal_citation_en: Optional[str] = None
     plain_explanation: Optional[str] = None
+    plain_explanation_en: Optional[str] = None
     counter_message: Optional[str] = None
+    counter_message_en: Optional[str] = None
+    counter_message_ta: Optional[str] = None
 
 
 class AnalyzeImageResponse(BaseModel):

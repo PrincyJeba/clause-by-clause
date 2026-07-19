@@ -34,6 +34,7 @@ const state = {
   imageSummary: null,
   selectedClauseIndex: null, // which imageClauses[] entry is "active" for counter/DLSA screens
   bulkMode: false, // true when acting on ALL risky clauses from an image result at once
+  counterLang: null, // "en" | "ta" | null — null means "match the site-wide language"
   complaintData: {},
   userName: "",
   userEmail: "",
@@ -55,6 +56,7 @@ function reset() {
     imageSummary: null,
     selectedClauseIndex: null,
     bulkMode: false,
+    counterLang: null,
     complaintData: {},
     userName: "",
     userEmail: "",
@@ -120,6 +122,31 @@ function activeClauseText() {
   return state.selectedClauseIndex !== null
     ? state.imageClauses[state.selectedClauseIndex].clause_text || ""
     : state.clauseText;
+}
+
+// The counter-message box has its own language toggle, independent of the
+// site-wide one — so this reads counter_message_en / counter_message_ta
+// directly off the source clause(s) rather than going through
+// activeClause().counter_message (which is frozen at whatever language the
+// site was in when the analyze call was made).
+function activeCounterMessage(lang) {
+  const field = lang === "ta" ? "counter_message_ta" : "counter_message_en";
+
+  if (state.bulkMode) {
+    const risky = highRiskClauses();
+    return risky
+      .map((c, i) => {
+        const text = c[field] || c.counter_message || "";
+        return `${i + 1}. Regarding the ${prettyClauseType(c.clause_type).toLowerCase()}:\n${text}`;
+      })
+      .join("\n\n");
+  }
+
+  const clause =
+    state.selectedClauseIndex !== null
+      ? state.imageClauses[state.selectedClauseIndex]
+      : state.result;
+  return (clause && (clause[field] || clause.counter_message)) || "";
 }
 
 function esc(str) {
@@ -287,6 +314,7 @@ async function runTextAnalysis() {
     state.result = result;
     state.selectedClauseIndex = null;
     state.bulkMode = false;
+    state.counterLang = null;
     goTo("result");
   } catch (err) {
     document.getElementById("analyzeStatus").innerHTML =
@@ -322,6 +350,7 @@ async function runImageAnalysis() {
     state.imageClauses = result.clauses || [];
     state.imageSummary = result.summary;
     state.bulkMode = false;
+    state.counterLang = null;
     goTo("imageResult");
   } catch (err) {
     document.getElementById("analyzeStatus").innerHTML =
@@ -517,10 +546,17 @@ function truncate(str, max) {
 // ---- Screen 3: Counter-message ------------------------------------------
 
 function renderCounter() {
-  const msg = (activeClause().counter_message) || "";
+  const effectiveLang = state.counterLang || currentLang();
+  const msg = activeCounterMessage(effectiveLang);
   const bulk = state.bulkMode;
   root.innerHTML = `
-    <h2>${bulk ? t("counter.titleBulk") : t("counter.title")}</h2>
+    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.6rem;">
+      <h2 style="margin:0;">${bulk ? t("counter.titleBulk") : t("counter.title")}</h2>
+      <div class="mini-lang-toggle">
+        <button type="button" class="mini-lang-btn${effectiveLang === "en" ? " active" : ""}" id="counterLangEn">English</button>
+        <button type="button" class="mini-lang-btn${effectiveLang === "ta" ? " active" : ""}" id="counterLangTa">தமிழ்</button>
+      </div>
+    </div>
     <p class="muted">${bulk ? t("counter.subtitleBulk") : t("counter.subtitle")}</p>
 
     <textarea id="counterText" style="min-height:200px">${esc(msg)}</textarea>
@@ -540,6 +576,15 @@ function renderCounter() {
     <div class="helpline">${t("counter.helpline")}</div>
   `;
 
+  document.getElementById("counterLangEn").onclick = () => {
+    state.counterLang = "en";
+    renderCounter();
+  };
+  document.getElementById("counterLangTa").onclick = () => {
+    state.counterLang = "ta";
+    renderCounter();
+  };
+
   document.getElementById("copyBtn").onclick = async () => {
     await navigator.clipboard.writeText(document.getElementById("counterText").value);
     document.getElementById("copyBtn").textContent = t("counter.copied");
@@ -553,6 +598,34 @@ function renderCounter() {
 }
 
 // ---- Screen 4: DLSA form -------------------------------------------------
+
+// The DLSA complaint is a formal letter to a government office and always
+// stays in English (see email.note), regardless of what language the site
+// or the counter-message box are currently showing. This pulls the
+// unlocalized _en fields rather than whatever activeClause() has, which may
+// be frozen in Tamil if the analysis itself was run with the site in Tamil.
+function activeComplaintFields() {
+  if (state.bulkMode) {
+    const risky = highRiskClauses();
+    const numbered = (fn) =>
+      risky.map((c, i) => `${i + 1}. ${prettyClauseType(c.clause_type)}: ${fn(c)}`).join("\n\n");
+    return {
+      clause_type: "multiple_clauses",
+      clause_text: numbered((c) => c.clause_text || "(text not captured)"),
+      plain_explanation_en: numbered((c) => c.plain_explanation_en || c.plain_explanation || ""),
+      legal_citation_en: risky.map((c) => c.legal_citation_en || c.legal_citation).filter(Boolean).join("; "),
+    };
+  }
+
+  const clause =
+    state.selectedClauseIndex !== null ? state.imageClauses[state.selectedClauseIndex] : state.result;
+  return {
+    clause_type: (clause && clause.clause_type) || "unknown",
+    clause_text: activeClauseText(),
+    plain_explanation_en: (clause && (clause.plain_explanation_en || clause.plain_explanation)) || "",
+    legal_citation_en: (clause && (clause.legal_citation_en || clause.legal_citation)) || "",
+  };
+}
 
 function renderDlsaForm() {
   const bulk = state.bulkMode;
@@ -598,16 +671,16 @@ function renderDlsaForm() {
     status.innerHTML =
       `<div class="spinner"><span class="dot"></span><span class="dot"></span><span class="dot"></span> ${t("dlsa.drafting")}</div>`;
 
-    const clause = activeClause();
+    const fields = activeComplaintFields();
     try {
       const complaintData = await Api.createComplaint({
         user_name: name,
         district: state.district,
-        clause_text: activeClauseText(),
-        clause_type: clause.clause_type || "unknown",
+        clause_text: fields.clause_text,
+        clause_type: fields.clause_type,
         doc_type: state.docType,
-        plain_explanation: clause.plain_explanation || "",
-        legal_citation: clause.legal_citation || "",
+        plain_explanation: fields.plain_explanation_en,
+        legal_citation: fields.legal_citation_en,
       });
       state.complaintData = complaintData;
       goTo("emailPreview");
