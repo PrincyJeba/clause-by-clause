@@ -118,7 +118,13 @@ header.brand .brand-text .tagline {
   margin-top: 0.2rem;
 }
 
-#themeToggle {
+.brand-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+#themeToggle, #langToggle {
   width: auto;
   margin-top: 0;
   padding: 0.5rem 0.85rem;
@@ -131,7 +137,7 @@ header.brand .brand-text .tagline {
   white-space: nowrap;
   flex-shrink: 0;
 }
-#themeToggle:hover { border-color: var(--gold); color: var(--gold); }
+#themeToggle:hover, #langToggle:hover { border-color: var(--gold); color: var(--gold); }
 
 main { padding: 1.4rem 1.4rem 2.5rem; }
 

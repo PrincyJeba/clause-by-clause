@@ -79,31 +79,46 @@ TOOLS = types.Tool(
 # ---------------------------------------------------------------------
 
 
-def _execute_tool(tool_name: str, args: dict) -> dict:
+def _execute_tool(tool_name: str, args: dict, lang: str = "en") -> dict:
     if tool_name == "check_clause_against_law":
         clause = rules_service.find_clause(args["clause_type"], args["doc_type"])
         if clause:
+            localized = rules_service.localize_clause(clause, lang)
             return {
                 "found": True,
                 "risk_level": "HIGH",
-                "legal_limit": clause["legal_limit"],
-                "section": clause["section"],
-                "plain_explanation": clause["plain_explanation"],
-                "act": rules_service.act_name(args["doc_type"]),
+                "legal_limit": localized["legal_limit"],
+                "section": localized["section"],
+                "plain_explanation": localized["plain_explanation"],
+                "act": rules_service.act_name(args["doc_type"], lang),
             }
         return {
             "found": False,
             "risk_level": "UNCLEAR",
             "note": (
-                "This clause type is not in the current rule base. "
-                "Manual review by a legal professional is recommended."
+                "இந்த வகை விதி தற்போதைய விதி தளத்தில் இல்லை. "
+                "ஒரு சட்ட நிபுணரின் நேரடி மதிப்பாய்வு பரிந்துரைக்கப்படுகிறது."
+                if lang == "ta"
+                else (
+                    "This clause type is not in the current rule base. "
+                    "Manual review by a legal professional is recommended."
+                )
             ),
         }
 
     if tool_name == "draft_counter_message":
         clause = rules_service.find_clause(args["clause_type"], args["doc_type"])
         if clause:
-            return {"counter_message": clause["counter_message"]}
+            localized = rules_service.localize_clause(clause, lang)
+            return {"counter_message": localized["counter_message"]}
+        if lang == "ta":
+            return {
+                "counter_message": (
+                    "இந்த விதி தமிழ்நாடு சட்டத்திற்கு இணங்காமல் இருக்கலாம் என்று "
+                    "எனக்கு கவலை உள்ளது. கையொப்பமிடும் முன் இந்த விதியை மறுஆய்வு "
+                    "செய்து திருத்த வேண்டும் என கோருகிறேன்."
+                )
+            }
         return {
             "counter_message": (
                 "I have concerns about this clause as it may not comply with "
@@ -120,7 +135,7 @@ def _execute_tool(tool_name: str, args: dict) -> dict:
 # ---------------------------------------------------------------------
 
 
-def analyze_clause(clause_text: str, doc_type: str, district: str) -> dict:
+def analyze_clause(clause_text: str, doc_type: str, district: str, lang: str = "en") -> dict:
     act_name = rules_service.act_name(doc_type)
 
     system_prompt = (
@@ -196,7 +211,7 @@ def analyze_clause(clause_text: str, doc_type: str, district: str) -> dict:
                     continue
                 fn_name = part.function_call.name
                 fn_args = dict(part.function_call.args)
-                tool_output = _execute_tool(fn_name, fn_args)
+                tool_output = _execute_tool(fn_name, fn_args, lang)
 
                 if fn_name == "check_clause_against_law":
                     result["clause_type"] = fn_args.get("clause_type")
@@ -225,7 +240,9 @@ def analyze_clause(clause_text: str, doc_type: str, district: str) -> dict:
     return result
 
 
-def analyze_contract_image(image_bytes: bytes, mime_type: str, doc_type: str, district: str) -> dict:
+def analyze_contract_image(
+    image_bytes: bytes, mime_type: str, doc_type: str, district: str, lang: str = "en"
+) -> dict:
     """
     Same tool-calling pattern as analyze_clause, but a document photo can
     contain several clauses at once. Gemini is instructed to call
@@ -300,7 +317,7 @@ def analyze_contract_image(image_bytes: bytes, mime_type: str, doc_type: str, di
                     continue
                 fn_name = part.function_call.name
                 fn_args = dict(part.function_call.args)
-                tool_output = _execute_tool(fn_name, fn_args)
+                tool_output = _execute_tool(fn_name, fn_args, lang)
 
                 if fn_name == "check_clause_against_law":
                     result["clauses"].append({

@@ -1,54 +1,85 @@
 {
   "state": "Tamil Nadu",
   "act": "Tamil Nadu Buildings (Lease and Rent Control) Act, 1960",
+  "act_ta": "தமிழ்நாடு கட்டிடங்கள் (குத்தகை மற்றும் வாடகை கட்டுப்பாடு) சட்டம், 1960",
   "clauses": [
     {
       "clause_type": "security_deposit",
       "label": "Security Deposit / Advance",
+      "label_ta": "பாதுகாப்பு வைப்புத்தொகை / முன்பணம்",
       "legal_limit": "Maximum 3 months rent as advance",
+      "legal_limit_ta": "அதிகபட்சம் 3 மாத வாடகை மட்டுமே முன்பணமாக அனுமதிக்கப்படுகிறது",
       "section": "Section 13, Tamil Nadu Buildings (Lease and Rent Control) Act 1960",
+      "section_ta": "பிரிவு 13, தமிழ்நாடு கட்டிடங்கள் (குத்தகை மற்றும் வாடகை கட்டுப்பாடு) சட்டம் 1960",
       "plain_explanation": "Your landlord can only ask for up to 3 months rent as advance. Anything above that is not legally enforceable in Tamil Nadu.",
-      "counter_message": "As per Section 13 of the Tamil Nadu Buildings (Lease and Rent Control) Act 1960, the maximum advance rent permitted is 3 months. I am only agreeable to paying 3 months rent as advance deposit and request that this clause be revised accordingly."
+      "plain_explanation_ta": "உங்கள் வீட்டு உரிமையாளர் அதிகபட்சம் 3 மாத வாடகையை மட்டுமே முன்பணமாக கேட்க முடியும். அதற்கு மேல் உள்ளது தமிழ்நாட்டில் சட்டப்படி செல்லுபடியாகாது.",
+      "counter_message": "As per Section 13 of the Tamil Nadu Buildings (Lease and Rent Control) Act 1960, the maximum advance rent permitted is 3 months. I am only agreeable to paying 3 months rent as advance deposit and request that this clause be revised accordingly.",
+      "counter_message_ta": "தமிழ்நாடு கட்டிடங்கள் (குத்தகை மற்றும் வாடகை கட்டுப்பாடு) சட்டம் 1960-ன் பிரிவு 13-ன் படி, அனுமதிக்கப்பட்ட அதிகபட்ச முன்பண வாடகை 3 மாதங்கள். நான் 3 மாத வாடகையை மட்டுமே முன்பண வைப்புத்தொகையாக செலுத்த ஒப்புக்கொள்கிறேன், இந்த விதி அதற்கேற்ப திருத்தப்பட வேண்டும் என கோருகிறேன்."
     },
     {
       "clause_type": "eviction_notice",
       "label": "Eviction Notice Period",
+      "label_ta": "வெளியேற்ற அறிவிப்பு காலம்",
       "legal_limit": "Eviction requires an order from the Rent Controller — direct eviction by landlord is illegal",
+      "legal_limit_ta": "வெளியேற்றத்திற்கு வாடகை கட்டுப்பாட்டு அதிகாரியின் உத்தரவு தேவை — உரிமையாளர் நேரடியாக வெளியேற்றுவது சட்டவிரோதம்",
       "section": "Sections 10 to 14, Tamil Nadu Buildings (Lease and Rent Control) Act 1960",
+      "section_ta": "பிரிவுகள் 10 முதல் 14 வரை, தமிழ்நாடு கட்டிடங்கள் (குத்தகை மற்றும் வாடகை கட்டுப்பாடு) சட்டம் 1960",
       "plain_explanation": "Your landlord cannot evict you directly. They must file a petition with the Rent Controller and obtain a legal order. Any clause saying they can remove you without a court process is not valid.",
-      "counter_message": "Under Sections 10 to 14 of the Tamil Nadu Buildings (Lease and Rent Control) Act 1960, eviction requires an order from the Rent Controller. A clause permitting direct eviction by the landlord is unenforceable and I do not agree to it."
+      "plain_explanation_ta": "உங்கள் வீட்டு உரிமையாளர் உங்களை நேரடியாக வெளியேற்ற முடியாது. அவர்கள் வாடகை கட்டுப்பாட்டு அதிகாரியிடம் மனு தாக்கல் செய்து சட்டப்பூர்வ உத்தரவு பெற வேண்டும். நீதிமன்ற செயல்முறை இல்லாமல் உங்களை அகற்றலாம் என்று சொல்லும் எந்த விதியும் செல்லுபடியாகாது.",
+      "counter_message": "Under Sections 10 to 14 of the Tamil Nadu Buildings (Lease and Rent Control) Act 1960, eviction requires an order from the Rent Controller. A clause permitting direct eviction by the landlord is unenforceable and I do not agree to it.",
+      "counter_message_ta": "தமிழ்நாடு கட்டிடங்கள் (குத்தகை மற்றும் வாடகை கட்டுப்பாடு) சட்டம் 1960-ன் பிரிவுகள் 10 முதல் 14 வரையிலான படி, வெளியேற்றத்திற்கு வாடகை கட்டுப்பாட்டு அதிகாரியின் உத்தரவு அவசியம். உரிமையாளர் நேரடியாக வெளியேற்றலாம் என்ற விதி செல்லுபடியாகாது, நான் இதை ஏற்கவில்லை."
     },
     {
       "clause_type": "rent_increase",
       "label": "Unilateral Rent Increase",
+      "label_ta": "ஒருதலைப்பட்ச வாடகை உயர்வு",
       "legal_limit": "Rent revision requires application to and approval from the Rent Controller",
+      "legal_limit_ta": "வாடகை திருத்தத்திற்கு வாடகை கட்டுப்பாட்டு அதிகாரியிடம் விண்ணப்பித்து ஒப்புதல் பெற வேண்டும்",
       "section": "Section 4, Tamil Nadu Buildings (Lease and Rent Control) Act 1960",
+      "section_ta": "பிரிவு 4, தமிழ்நாடு கட்டிடங்கள் (குத்தகை மற்றும் வாடகை கட்டுப்பாடு) சட்டம் 1960",
       "plain_explanation": "Your landlord cannot increase rent on their own decision. Any rent increase must go through the Rent Controller. A clause allowing the landlord to raise rent without this process is illegal.",
-      "counter_message": "Rent increases without Rent Controller approval are invalid under Section 4 of the Tamil Nadu Buildings (Lease and Rent Control) Act 1960. I do not agree to any clause permitting unilateral rent revision by the landlord."
+      "plain_explanation_ta": "உங்கள் வீட்டு உரிமையாளர் தாமாகவே வாடகையை உயர்த்த முடியாது. எந்த வாடகை உயர்வும் வாடகை கட்டுப்பாட்டு அதிகாரி வழியாகவே செல்ல வேண்டும். இந்த செயல்முறை இல்லாமல் உரிமையாளர் வாடகையை உயர்த்த அனுமதிக்கும் விதி சட்டவிரோதமானது.",
+      "counter_message": "Rent increases without Rent Controller approval are invalid under Section 4 of the Tamil Nadu Buildings (Lease and Rent Control) Act 1960. I do not agree to any clause permitting unilateral rent revision by the landlord.",
+      "counter_message_ta": "தமிழ்நாடு கட்டிடங்கள் (குத்தகை மற்றும் வாடகை கட்டுப்பாடு) சட்டம் 1960-ன் பிரிவு 4-ன் படி, வாடகை கட்டுப்பாட்டு அதிகாரியின் ஒப்புதல் இல்லாத வாடகை உயர்வுகள் செல்லுபடியாகாது. உரிமையாளர் ஒருதலைப்பட்சமாக வாடகையை திருத்த அனுமதிக்கும் எந்த விதியையும் நான் ஏற்கவில்லை."
     },
     {
       "clause_type": "deposit_forfeiture",
       "label": "Deposit Forfeiture",
+      "label_ta": "வைப்புத்தொகை பறிமுதல்",
       "legal_limit": "Deposit must be returned on vacating, minus only proven damages",
+      "legal_limit_ta": "வெளியேறும்போது வைப்புத்தொகை திரும்பப் பெறப்பட வேண்டும், நிரூபிக்கப்பட்ட சேதங்களை மட்டும் கழிக்கலாம்",
       "section": "Section 13, Tamil Nadu Buildings (Lease and Rent Control) Act 1960",
+      "section_ta": "பிரிவு 13, தமிழ்நாடு கட்டிடங்கள் (குத்தகை மற்றும் வாடகை கட்டுப்பாடு) சட்டம் 1960",
       "plain_explanation": "Your landlord must return your deposit when you vacate. They can only deduct amounts for actual, proven damages. A clause saying your deposit is forfeited automatically is not valid.",
-      "counter_message": "Blanket deposit forfeiture is not permitted under Section 13 of the Tamil Nadu Buildings (Lease and Rent Control) Act 1960. Any deductions must correspond to actual proven damages. I request this clause be removed or revised."
+      "plain_explanation_ta": "நீங்கள் வெளியேறும்போது உங்கள் உரிமையாளர் வைப்புத்தொகையை திருப்பிக் கொடுக்க வேண்டும். உண்மையான, நிரூபிக்கப்பட்ட சேதங்களுக்கு மட்டுமே தொகையை கழிக்க முடியும். வைப்புத்தொகை தானாகவே பறிமுதல் செய்யப்படும் என்று சொல்லும் விதி செல்லுபடியாகாது.",
+      "counter_message": "Blanket deposit forfeiture is not permitted under Section 13 of the Tamil Nadu Buildings (Lease and Rent Control) Act 1960. Any deductions must correspond to actual proven damages. I request this clause be removed or revised.",
+      "counter_message_ta": "தமிழ்நாடு கட்டிடங்கள் (குத்தகை மற்றும் வாடகை கட்டுப்பாடு) சட்டம் 1960-ன் பிரிவு 13-ன் படி, முழு வைப்புத்தொகையையும் பறிமுதல் செய்வது அனுமதிக்கப்படவில்லை. எந்த கழிவும் உண்மையான, நிரூபிக்கப்பட்ட சேதங்களுக்கு ஏற்ப இருக்க வேண்டும். இந்த விதி நீக்கப்பட வேண்டும் அல்லது திருத்தப்பட வேண்டும் என கோருகிறேன்."
     },
     {
       "clause_type": "lock_in_period",
       "label": "Lock-in Period with Heavy Penalty",
+      "label_ta": "கடுமையான அபராதத்துடன் கூடிய பூட்டு-இன் காலம்",
       "legal_limit": "No statutory lock-in period — must be mutually agreed and reasonable. Penalties beyond 2 months rent are considered disproportionate.",
+      "legal_limit_ta": "சட்டப்படி கட்டாய பூட்டு-இன் காலம் இல்லை — பரஸ்பர ஒப்புதலுடனும் நியாயமாகவும் இருக்க வேண்டும். 2 மாத வாடகைக்கு மேல் உள்ள அபராதங்கள் நியாயமற்றவை.",
       "section": "Indian Contract Act 1872, Section 74 — penalty must be genuine pre-estimate of loss",
+      "section_ta": "இந்திய ஒப்பந்த சட்டம் 1872, பிரிவு 74 — அபராதம் உண்மையான நஷ்ட முன் மதிப்பீடாக இருக்க வேண்டும்",
       "plain_explanation": "A lock-in period with very large financial penalties for leaving early is considered an unfair contract term. Penalties must be a reasonable, genuine estimate of actual loss — not a punishment.",
-      "counter_message": "Under Section 74 of the Indian Contract Act 1872, penalty clauses must be a genuine pre-estimate of actual loss and cannot be punitive. I propose a maximum 2-month notice period in place of the current lock-in penalty and request this clause be revised."
+      "plain_explanation_ta": "முன்கூட்டியே வெளியேறினால் மிகப் பெரிய நிதி அபராதங்களுடன் கூடிய பூட்டு-இன் காலம் நியாயமற்ற ஒப்பந்த விதியாக கருதப்படுகிறது. அபராதங்கள் உண்மையான நஷ்டத்தின் நியாயமான, உண்மையான மதிப்பீடாக இருக்க வேண்டும் — தண்டனையாக இருக்கக்கூடாது.",
+      "counter_message": "Under Section 74 of the Indian Contract Act 1872, penalty clauses must be a genuine pre-estimate of actual loss and cannot be punitive. I propose a maximum 2-month notice period in place of the current lock-in penalty and request this clause be revised.",
+      "counter_message_ta": "இந்திய ஒப்பந்த சட்டம் 1872-ன் பிரிவு 74-ன் படி, அபராத விதிகள் உண்மையான நஷ்டத்தின் உண்மையான முன் மதிப்பீடாக இருக்க வேண்டும், தண்டனையாக இருக்கக்கூடாது. தற்போதைய பூட்டு-இன் அபராதத்திற்கு பதிலாக அதிகபட்சம் 2 மாத அறிவிப்பு காலத்தை நான் முன்மொழிகிறேன், இந்த விதி திருத்தப்பட வேண்டும் என கோருகிறேன்."
     },
     {
       "clause_type": "maintenance_responsibility",
       "label": "Tenant Responsible for Structural Repairs",
+      "label_ta": "கட்டமைப்பு பழுதுபார்ப்புக்கு வாடகைதாரர் பொறுப்பு",
       "legal_limit": "Major structural repairs are the landlord's legal responsibility",
+      "legal_limit_ta": "பெரிய கட்டமைப்பு பழுதுபார்ப்புகள் உரிமையாளரின் சட்டப்பூர்வ பொறுப்பு",
       "section": "Section 22, Tamil Nadu Buildings (Lease and Rent Control) Act 1960",
+      "section_ta": "பிரிவு 22, தமிழ்நாடு கட்டிடங்கள் (குத்தகை மற்றும் வாடகை கட்டுப்பாடு) சட்டம் 1960",
       "plain_explanation": "You are only responsible for minor day-to-day maintenance. Major repairs such as walls, roof, plumbing structure, and electrical fittings are your landlord's duty by law. A clause shifting this to you is not enforceable.",
-      "counter_message": "Under Section 22 of the Tamil Nadu Buildings (Lease and Rent Control) Act 1960, structural and major repairs are the landlord's responsibility. I do not accept a clause placing this obligation on the tenant."
+      "plain_explanation_ta": "சிறிய அன்றாட பராமரிப்புக்கு மட்டுமே நீங்கள் பொறுப்பு. சுவர்கள், கூரை, குழாய் அமைப்பு, மின் பொருத்துதல்கள் போன்ற பெரிய பழுதுபார்ப்புகள் சட்டப்படி உங்கள் உரிமையாளரின் கடமை. இதை உங்கள் மீது மாற்றும் விதி செல்லுபடியாகாது.",
+      "counter_message": "Under Section 22 of the Tamil Nadu Buildings (Lease and Rent Control) Act 1960, structural and major repairs are the landlord's responsibility. I do not accept a clause placing this obligation on the tenant.",
+      "counter_message_ta": "தமிழ்நாடு கட்டிடங்கள் (குத்தகை மற்றும் வாடகை கட்டுப்பாடு) சட்டம் 1960-ன் பிரிவு 22-ன் படி, கட்டமைப்பு மற்றும் பெரிய பழுதுபார்ப்புகள் உரிமையாளரின் பொறுப்பு. இந்த கடமையை வாடகைதாரர் மீது சுமத்தும் விதியை நான் ஏற்கவில்லை."
     }
   ]
 }

@@ -15,6 +15,7 @@ def analyze(req: AnalyzeRequest):
         clause_text=req.clause_text,
         doc_type=req.doc_type,
         district=req.district,
+        lang=req.lang,
     )
     return AnalyzeResponse(**result)
 
@@ -33,5 +34,6 @@ def analyze_image(req: AnalyzeImageRequest):
         mime_type=req.mime_type,
         doc_type=req.doc_type,
         district=req.district,
+        lang=req.lang,
     )
     return AnalyzeImageResponse(**result)

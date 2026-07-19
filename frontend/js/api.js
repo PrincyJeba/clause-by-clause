@@ -18,10 +18,16 @@ async function postJSON(path, body) {
 
 const Api = {
   analyzeClause: (clause_text, doc_type, district) =>
-    postJSON("/analyze", { clause_text, doc_type, district }),
+    postJSON("/analyze", { clause_text, doc_type, district, lang: currentLang() }),
 
   analyzeImage: (image_base64, mime_type, doc_type, district) =>
-    postJSON("/analyze-image", { image_base64, mime_type, doc_type, district }),
+    postJSON("/analyze-image", {
+      image_base64,
+      mime_type,
+      doc_type,
+      district,
+      lang: currentLang(),
+    }),
 
   createComplaint: (payload) => postJSON("/complaint", payload),
 

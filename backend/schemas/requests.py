@@ -2,12 +2,14 @@ from pydantic import BaseModel
 from typing import Literal
 
 DocType = Literal["rental", "loan"]
+Lang = Literal["en", "ta"]
 
 
 class AnalyzeRequest(BaseModel):
     clause_text: str
     doc_type: DocType
     district: str
+    lang: Lang = "en"
 
 
 class AnalyzeImageRequest(BaseModel):
@@ -15,6 +17,7 @@ class AnalyzeImageRequest(BaseModel):
     mime_type: str = "image/jpeg"
     doc_type: DocType
     district: str
+    lang: Lang = "en"
 
 
 class ComplaintRequest(BaseModel):

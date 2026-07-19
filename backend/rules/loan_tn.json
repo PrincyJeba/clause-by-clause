@@ -1,54 +1,85 @@
 {
   "state": "Tamil Nadu",
   "act": "Tamil Nadu Money Lenders Act, 1957",
+  "act_ta": "தமிழ்நாடு பணமளிப்பவர்கள் சட்டம், 1957",
   "clauses": [
     {
       "clause_type": "interest_rate",
       "label": "Interest Rate",
+      "label_ta": "வட்டி விகிதம்",
       "legal_limit": "Maximum 12 percent per annum for secured loans, 18 percent per annum for unsecured loans",
+      "legal_limit_ta": "பாதுகாப்பான கடன்களுக்கு ஆண்டுக்கு அதிகபட்சம் 12 சதவீதம், பாதுகாப்பற்ற கடன்களுக்கு ஆண்டுக்கு 18 சதவீதம்",
       "section": "Section 13, Tamil Nadu Money Lenders Act 1957",
+      "section_ta": "பிரிவு 13, தமிழ்நாடு பணமளிப்பவர்கள் சட்டம் 1957",
       "plain_explanation": "The maximum legal interest rate in Tamil Nadu is 12 percent per year for secured loans and 18 percent for unsecured loans. Any rate above this is illegal and you are not bound to pay it.",
-      "counter_message": "Under Section 13 of the Tamil Nadu Money Lenders Act 1957, the maximum permissible interest rate is 18 percent per annum for unsecured loans. The rate stated in this agreement exceeds the legal limit and I do not agree to pay any interest above 18 percent per annum."
+      "plain_explanation_ta": "தமிழ்நாட்டில் அதிகபட்ச சட்டப்பூர்வ வட்டி விகிதம் பாதுகாப்பான கடன்களுக்கு ஆண்டுக்கு 12 சதவீதமும், பாதுகாப்பற்ற கடன்களுக்கு 18 சதவீதமும் ஆகும். இதற்கு மேல் உள்ள எந்த விகிதமும் சட்டவிரோதமானது, அதை செலுத்த நீங்கள் கடமைப்பட்டவர் அல்ல.",
+      "counter_message": "Under Section 13 of the Tamil Nadu Money Lenders Act 1957, the maximum permissible interest rate is 18 percent per annum for unsecured loans. The rate stated in this agreement exceeds the legal limit and I do not agree to pay any interest above 18 percent per annum.",
+      "counter_message_ta": "தமிழ்நாடு பணமளிப்பவர்கள் சட்டம் 1957-ன் பிரிவு 13-ன் படி, பாதுகாப்பற்ற கடன்களுக்கு அனுமதிக்கப்பட்ட அதிகபட்ச வட்டி விகிதம் ஆண்டுக்கு 18 சதவீதம். இந்த ஒப்பந்தத்தில் குறிப்பிடப்பட்டுள்ள விகிதம் சட்டப்பூர்வ வரம்பை மீறுகிறது, ஆண்டுக்கு 18 சதவீதத்திற்கு மேல் எந்த வட்டியையும் செலுத்த நான் ஒப்புக்கொள்ளவில்லை."
     },
     {
       "clause_type": "compound_interest",
       "label": "Compound Interest",
+      "label_ta": "கூட்டு வட்டி",
       "legal_limit": "Compound interest is prohibited — only simple interest is permitted",
+      "legal_limit_ta": "கூட்டு வட்டி தடைசெய்யப்பட்டுள்ளது — எளிய வட்டி மட்டுமே அனுமதிக்கப்படுகிறது",
       "section": "Section 13, Tamil Nadu Money Lenders Act 1957",
+      "section_ta": "பிரிவு 13, தமிழ்நாடு பணமளிப்பவர்கள் சட்டம் 1957",
       "plain_explanation": "A moneylender in Tamil Nadu cannot charge interest on top of interest. Only simple interest is permitted by law. A compound interest clause is illegal.",
-      "counter_message": "Compound interest is prohibited under Section 13 of the Tamil Nadu Money Lenders Act 1957. I agree only to simple interest calculated at the legally permitted rate."
+      "plain_explanation_ta": "தமிழ்நாட்டில் ஒரு பணமளிப்பவர் வட்டிக்கு மேல் வட்டி வசூலிக்க முடியாது. சட்டப்படி எளிய வட்டி மட்டுமே அனுமதிக்கப்படுகிறது. கூட்டு வட்டி விதி சட்டவிரோதமானது.",
+      "counter_message": "Compound interest is prohibited under Section 13 of the Tamil Nadu Money Lenders Act 1957. I agree only to simple interest calculated at the legally permitted rate.",
+      "counter_message_ta": "தமிழ்நாடு பணமளிப்பவர்கள் சட்டம் 1957-ன் பிரிவு 13-ன் படி, கூட்டு வட்டி தடைசெய்யப்பட்டுள்ளது. சட்டப்படி அனுமதிக்கப்பட்ட விகிதத்தில் கணக்கிடப்படும் எளிய வட்டியை மட்டுமே நான் ஏற்கிறேன்."
     },
     {
       "clause_type": "lender_license",
       "label": "Unlicensed Moneylender",
+      "label_ta": "உரிமம் இல்லாத பணமளிப்பவர்",
       "legal_limit": "Moneylender must hold a valid license issued by the Tamil Nadu government",
+      "legal_limit_ta": "பணமளிப்பவர் தமிழ்நாடு அரசு வழங்கிய சரியான உரிமத்தை வைத்திருக்க வேண்டும்",
       "section": "Section 3, Tamil Nadu Money Lenders Act 1957",
+      "section_ta": "பிரிவு 3, தமிழ்நாடு பணமளிப்பவர்கள் சட்டம் 1957",
       "plain_explanation": "Any person charging interest on a loan must hold a valid government license. If the license number is not mentioned in the agreement, ask for it. An unlicensed lender has limited legal standing to enforce repayment.",
-      "counter_message": "Under Section 3 of the Tamil Nadu Money Lenders Act 1957, any person engaged in moneylending must hold a valid license. Please provide your license number before I agree to sign this document."
+      "plain_explanation_ta": "கடனுக்கு வட்டி வசூலிக்கும் எவரும் சரியான அரசு உரிமத்தை வைத்திருக்க வேண்டும். ஒப்பந்தத்தில் உரிம எண் குறிப்பிடப்படவில்லை என்றால், அதை கேளுங்கள். உரிமம் இல்லாத பணமளிப்பவருக்கு திருப்பிச் செலுத்துதலை கட்டாயப்படுத்த வரையறுக்கப்பட்ட சட்ட அதிகாரமே உள்ளது.",
+      "counter_message": "Under Section 3 of the Tamil Nadu Money Lenders Act 1957, any person engaged in moneylending must hold a valid license. Please provide your license number before I agree to sign this document.",
+      "counter_message_ta": "தமிழ்நாடு பணமளிப்பவர்கள் சட்டம் 1957-ன் பிரிவு 3-ன் படி, பணமளிக்கும் எவரும் சரியான உரிமத்தை வைத்திருக்க வேண்டும். இந்த ஆவணத்தில் கையொப்பமிடும் முன் உங்கள் உரிம எண்ணை வழங்கவும்."
     },
     {
       "clause_type": "written_receipt",
       "label": "No Receipt for Payments",
+      "label_ta": "கட்டணங்களுக்கு ரசீது இல்லை",
       "legal_limit": "Lender must issue a signed receipt for every payment made",
+      "legal_limit_ta": "செலுத்தும் ஒவ்வொரு கட்டணத்திற்கும் பணமளிப்பவர் கையொப்பமிட்ட ரசீது வழங்க வேண்டும்",
       "section": "Section 15, Tamil Nadu Money Lenders Act 1957",
+      "section_ta": "பிரிவு 15, தமிழ்நாடு பணமளிப்பவர்கள் சட்டம் 1957",
       "plain_explanation": "Your lender is legally required to give you a signed written receipt for every repayment you make. This protects you from false claims. If there is no receipt clause, insist on one.",
-      "counter_message": "Under Section 15 of the Tamil Nadu Money Lenders Act 1957, the lender is required to issue a signed receipt for every payment. I require an explicit receipt clause to be included in this agreement before I sign."
+      "plain_explanation_ta": "நீங்கள் செலுத்தும் ஒவ்வொரு தவணைக்கும் உங்கள் கடன் வழங்குபவர் சட்டப்படி கையொப்பமிட்ட எழுத்துப்பூர்வ ரசீது தர வேண்டும். இது தவறான கூற்றுக்களிலிருந்து உங்களை பாதுகாக்கிறது. ரசீது விதி இல்லை என்றால், ஒன்றை வலியுறுத்துங்கள்.",
+      "counter_message": "Under Section 15 of the Tamil Nadu Money Lenders Act 1957, the lender is required to issue a signed receipt for every payment. I require an explicit receipt clause to be included in this agreement before I sign.",
+      "counter_message_ta": "தமிழ்நாடு பணமளிப்பவர்கள் சட்டம் 1957-ன் பிரிவு 15-ன் படி, ஒவ்வொரு கட்டணத்திற்கும் கையொப்பமிட்ட ரசீது வழங்க பணமளிப்பவர் கடமைப்பட்டவர். கையொப்பமிடும் முன் இந்த ஒப்பந்தத்தில் தெளிவான ரசீது விதி சேர்க்கப்பட வேண்டும் என நான் கோருகிறேன்."
     },
     {
       "clause_type": "asset_seizure",
       "label": "Direct Asset or Property Seizure",
+      "label_ta": "நேரடி சொத்து அல்லது பொருள் பறிமுதல்",
       "legal_limit": "No lender can seize assets or property without a court order — only a court can attach property",
+      "legal_limit_ta": "நீதிமன்ற உத்தரவு இல்லாமல் எந்த பணமளிப்பவரும் சொத்து அல்லது பொருட்களை பறிமுதல் செய்ய முடியாது — நீதிமன்றம் மட்டுமே சொத்தை இணைக்க முடியும்",
       "section": "Code of Civil Procedure 1908 — property attachment requires court order",
+      "section_ta": "சிவில் நடைமுறை சட்டம் 1908 — சொத்து இணைப்புக்கு நீதிமன்ற உத்தரவு தேவை",
       "plain_explanation": "No lender can take your property, phone, jewellery, or any other asset directly if you miss a payment. Only a court can order that. Any clause allowing the lender to seize your belongings without going to court is illegal.",
-      "counter_message": "Asset seizure without a court order is illegal under the Code of Civil Procedure 1908. No private party can attach or seize property without judicial authorization. This clause is unenforceable and I do not agree to it."
+      "plain_explanation_ta": "நீங்கள் ஒரு தவணையை தவறவிட்டால், எந்த பணமளிப்பவரும் உங்கள் சொத்து, தொலைபேசி, நகைகள் அல்லது வேறு எந்த பொருளையும் நேரடியாக எடுக்க முடியாது. நீதிமன்றம் மட்டுமே அதற்கு உத்தரவிட முடியும். நீதிமன்றம் செல்லாமல் உங்கள் பொருட்களை பறிமுதல் செய்ய அனுமதிக்கும் விதி சட்டவிரோதமானது.",
+      "counter_message": "Asset seizure without a court order is illegal under the Code of Civil Procedure 1908. No private party can attach or seize property without judicial authorization. This clause is unenforceable and I do not agree to it.",
+      "counter_message_ta": "சிவில் நடைமுறை சட்டம் 1908-ன் படி, நீதிமன்ற உத்தரவு இல்லாத சொத்து பறிமுதல் சட்டவிரோதமானது. நீதித்துறை அங்கீகாரம் இல்லாமல் எந்த தனிநபரும் சொத்தை இணைக்கவோ பறிமுதல் செய்யவோ முடியாது. இந்த விதி செல்லுபடியாகாது, நான் இதை ஏற்கவில்லை."
     },
     {
       "clause_type": "penalty_clause",
       "label": "Disproportionate Late Payment Penalty",
+      "label_ta": "நியாயமற்ற தாமத கட்டண அபராதம்",
       "legal_limit": "Penalty must be a genuine pre-estimate of loss — total interest and penalties cannot exceed the principal amount",
+      "legal_limit_ta": "அபராதம் உண்மையான நஷ்ட முன் மதிப்பீடாக இருக்க வேண்டும் — மொத்த வட்டி மற்றும் அபராதங்கள் அசல் தொகையை மீறக்கூடாது",
       "section": "Section 74, Indian Contract Act 1872 and Section 13, Tamil Nadu Money Lenders Act 1957",
+      "section_ta": "பிரிவு 74, இந்திய ஒப்பந்த சட்டம் 1872 மற்றும் பிரிவு 13, தமிழ்நாடு பணமளிப்பவர்கள் சட்டம் 1957",
       "plain_explanation": "Late payment penalties must be reasonable and proportionate. The total of all interest and penalties cannot exceed the original amount you borrowed. Very large or punitive penalty clauses are not enforceable.",
-      "counter_message": "Under Section 74 of the Indian Contract Act 1872, penalty clauses must represent a genuine pre-estimate of loss and cannot be punitive. The penalty stated in this agreement is disproportionate. I request it be revised to a reasonable amount not exceeding one month's interest."
+      "plain_explanation_ta": "தாமத கட்டண அபராதங்கள் நியாயமானதாகவும் விகிதாசாரமாகவும் இருக்க வேண்டும். அனைத்து வட்டி மற்றும் அபராதங்களின் மொத்தம் நீங்கள் கடன் வாங்கிய அசல் தொகையை மீறக்கூடாது. மிகப் பெரிய அல்லது தண்டனை போன்ற அபராத விதிகள் செல்லுபடியாகாது.",
+      "counter_message": "Under Section 74 of the Indian Contract Act 1872, penalty clauses must represent a genuine pre-estimate of loss and cannot be punitive. The penalty stated in this agreement is disproportionate. I request it be revised to a reasonable amount not exceeding one month's interest.",
+      "counter_message_ta": "இந்திய ஒப்பந்த சட்டம் 1872-ன் பிரிவு 74-ன் படி, அபராத விதிகள் உண்மையான நஷ்டத்தின் உண்மையான முன் மதிப்பீடாக இருக்க வேண்டும், தண்டனையாக இருக்கக்கூடாது. இந்த ஒப்பந்தத்தில் கூறப்பட்டுள்ள அபராதம் நியாயமற்றது. ஒரு மாத வட்டியை மீறாத நியாயமான தொகையாக இதை திருத்த கோருகிறேன்."
     }
   ]
 }

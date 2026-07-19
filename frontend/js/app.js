@@ -149,7 +149,7 @@ function renderBackArrow() {
   if (state.history.length === 0) return;
   const bar = document.createElement("div");
   bar.className = "back-nav";
-  bar.innerHTML = `<button type="button" id="backArrowBtn" class="btn-back" aria-label="Go back">&#8592; Back</button>`;
+  bar.innerHTML = `<button type="button" id="backArrowBtn" class="btn-back" aria-label="Go back">&#8592; ${t("nav.back")}</button>`;
   root.insertBefore(bar, root.firstChild);
   document.getElementById("backArrowBtn").onclick = goBack;
 }
@@ -164,39 +164,34 @@ function renderInput() {
   const isImage = state.inputMode === "image";
 
   root.innerHTML = `
-    <h2>Check your agreement</h2>
-    <p class="muted">Paste a clause, or upload a photo of the whole document.
-    We'll check it against Tamil Nadu law and tell you plainly what it means.</p>
+    <h2>${t("input.title")}</h2>
+    <p class="muted">${t("input.subtitle")}</p>
 
     <div class="btn-row" role="tablist">
-      <button class="${isImage ? "btn-outline" : "btn-primary"}" id="modeText" type="button">Paste text</button>
-      <button class="${isImage ? "btn-primary" : "btn-outline"}" id="modeImage" type="button">Upload photo</button>
+      <button class="${isImage ? "btn-outline" : "btn-primary"}" id="modeText" type="button">${t("input.modeText")}</button>
+      <button class="${isImage ? "btn-primary" : "btn-outline"}" id="modeImage" type="button">${t("input.modeImage")}</button>
     </div>
 
     <div class="row" style="margin-top:1rem">
       <div>
-        <label for="docType">Document type</label>
+        <label for="docType">${t("input.docType")}</label>
         <select id="docType">
-          <option value="rental" ${state.docType === "rental" ? "selected" : ""}>Rental agreement</option>
-          <option value="loan" ${state.docType === "loan" ? "selected" : ""}>Loan / borrowing note</option>
+          <option value="rental" ${state.docType === "rental" ? "selected" : ""}>${t("input.docType.rental")}</option>
+          <option value="loan" ${state.docType === "loan" ? "selected" : ""}>${t("input.docType.loan")}</option>
         </select>
       </div>
       <div>
-        <label for="district">Your district</label>
+        <label for="district">${t("input.district")}</label>
         <select id="district">${districtOptions}</select>
       </div>
     </div>
 
     <div id="modeBody"></div>
 
-    <button class="btn-primary" id="analyzeBtn">${isImage ? "Check this document" : "Check this clause"}</button>
+    <button class="btn-primary" id="analyzeBtn">${isImage ? t("input.analyzeImage") : t("input.analyzeText")}</button>
     <div id="analyzeStatus"></div>
 
-    <div class="disclaimer">
-      This tool is not a substitute for legal advice. For serious or urgent
-      situations, contact your nearest District Legal Services Authority or
-      call the free Tamil Nadu legal aid helpline: 15100.
-    </div>
+    <div class="disclaimer">${t("input.disclaimer")}</div>
   `;
 
   document.getElementById("docType").onchange = (e) => (state.docType = e.target.value);
@@ -218,14 +213,14 @@ function renderInput() {
 function renderTextInputBody() {
   const body = document.getElementById("modeBody");
   body.innerHTML = `
-    <label for="clauseText">Paste your clause here</label>
-    <textarea id="clauseText" placeholder="Example: The tenant shall pay 6 months rent as security deposit...">${esc(state.clauseText)}</textarea>
+    <label for="clauseText">${t("input.clauseLabel")}</label>
+    <textarea id="clauseText" placeholder="${esc(t("input.clausePlaceholder"))}">${esc(state.clauseText)}</textarea>
 
     <details class="samples">
-      <summary>Try a sample clause</summary>
+      <summary>${t("input.tryASample")}</summary>
       <div class="btn-row">
-        <button class="btn-outline" id="sampleRental">Load rental sample</button>
-        <button class="btn-outline" id="sampleLoan">Load loan sample</button>
+        <button class="btn-outline" id="sampleRental">${t("input.sampleRental")}</button>
+        <button class="btn-outline" id="sampleLoan">${t("input.sampleLoan")}</button>
       </div>
     </details>
   `;
@@ -246,16 +241,15 @@ function renderTextInputBody() {
 function renderImageInputBody() {
   const body = document.getElementById("modeBody");
   body.innerHTML = `
-    <label for="imageInput">Photo of your document</label>
+    <label for="imageInput">${t("input.imageLabel")}</label>
     <input type="file" id="imageInput" accept="image/*" capture="environment" />
-    <p class="muted" style="font-size:0.85rem">Tap to take a photo or choose one from your gallery.
-    Make sure the text is readable — good lighting, not too angled.</p>
+    <p class="muted" style="font-size:0.85rem">${t("input.imageHint")}</p>
     <div id="imagePreviewWrap"></div>
   `;
 
   if (state.imagePreviewUrl) {
     document.getElementById("imagePreviewWrap").innerHTML = `
-      <img src="${state.imagePreviewUrl}" alt="Selected document photo"
+      <img src="${state.imagePreviewUrl}" alt="${esc(t("input.imageAlt"))}"
         style="width:100%;border-radius:10px;margin-top:0.6rem;border:1.5px solid var(--border);" />
     `;
   }
@@ -280,13 +274,13 @@ async function runTextAnalysis() {
   const text = state.clauseText.trim();
   if (!text) {
     document.getElementById("analyzeStatus").innerHTML =
-      '<p class="panel error">Please enter a clause first.</p>';
+      `<p class="panel error">${t("input.errNoText")}</p>`;
     return;
   }
   const btn = document.getElementById("analyzeBtn");
   btn.disabled = true;
   document.getElementById("analyzeStatus").innerHTML =
-    '<div class="spinner"><span class="dot"></span><span class="dot"></span><span class="dot"></span> Checking against Tamil Nadu law...</div>';
+    `<div class="spinner"><span class="dot"></span><span class="dot"></span><span class="dot"></span> ${t("input.checkingText")}</div>`;
 
   try {
     const result = await Api.analyzeClause(text, state.docType, state.district);
@@ -296,7 +290,7 @@ async function runTextAnalysis() {
     goTo("result");
   } catch (err) {
     document.getElementById("analyzeStatus").innerHTML =
-      `<p class="panel error">Something went wrong: ${esc(err.message)}</p>`;
+      `<p class="panel error">${esc(t("err.generic", { msg: err.message }))}</p>`;
     btn.disabled = false;
   }
 }
@@ -304,13 +298,13 @@ async function runTextAnalysis() {
 async function runImageAnalysis() {
   if (!state.imageBase64) {
     document.getElementById("analyzeStatus").innerHTML =
-      '<p class="panel error">Please choose a photo first.</p>';
+      `<p class="panel error">${t("input.errNoImage")}</p>`;
     return;
   }
   const btn = document.getElementById("analyzeBtn");
   btn.disabled = true;
   document.getElementById("analyzeStatus").innerHTML =
-    '<div class="spinner"><span class="dot"></span><span class="dot"></span><span class="dot"></span> Reading the document and checking every clause — this can take a bit longer...</div>';
+    `<div class="spinner"><span class="dot"></span><span class="dot"></span><span class="dot"></span> ${t("input.checkingImage")}</div>`;
 
   try {
     const result = await Api.analyzeImage(
@@ -331,7 +325,7 @@ async function runImageAnalysis() {
     goTo("imageResult");
   } catch (err) {
     document.getElementById("analyzeStatus").innerHTML =
-      `<p class="panel error">Something went wrong: ${esc(err.message)}</p>`;
+      `<p class="panel error">${esc(t("err.generic", { msg: err.message }))}</p>`;
     btn.disabled = false;
   }
 }
@@ -343,9 +337,9 @@ function renderResult() {
 
   if (r.error) {
     root.innerHTML = `
-      <h2>Something went wrong</h2>
+      <h2>${t("result.errTitle")}</h2>
       <p class="panel error">${esc(r.error)}</p>
-      <button class="btn-primary" id="retry">Try again</button>
+      <button class="btn-primary" id="retry">${t("result.retry")}</button>
     `;
     document.getElementById("retry").onclick = reset;
     return;
@@ -353,60 +347,57 @@ function renderResult() {
 
   if (r.risk_level === "HIGH") {
     root.innerHTML = `
-      <span class="stamp high">High risk</span>
-      <p>This clause appears to violate Tamil Nadu law.</p>
+      <span class="stamp high">${t("result.highStamp")}</span>
+      <p>${t("result.highIntro")}</p>
 
       ${r.plain_explanation ? `
-        <h2>What this means for you</h2>
+        <h2>${t("result.whatItMeansFor")}</h2>
         <div class="panel explain">${esc(r.plain_explanation)}</div>
       ` : ""}
 
-      ${r.legal_citation ? `<div class="panel citation">Legal basis: ${esc(r.legal_citation)}</div>` : ""}
-      ${r.legal_limit ? `<div class="panel citation">What the law allows: ${esc(r.legal_limit)}</div>` : ""}
+      ${r.legal_citation ? `<div class="panel citation">${esc(t("result.legalBasis", { v: r.legal_citation }))}</div>` : ""}
+      ${r.legal_limit ? `<div class="panel citation">${esc(t("result.legalLimit", { v: r.legal_limit }))}</div>` : ""}
 
-      <h2>What do you want to do?</h2>
-      <p class="muted"><strong>Option A</strong> — send a counter-message to your landlord or lender.</p>
-      <button class="btn-primary" id="toCounter">Send counter-message</button>
+      <h2>${t("result.whatNext")}</h2>
+      <p class="muted">${t("result.optionA")}</p>
+      <button class="btn-primary" id="toCounter">${t("result.sendCounter")}</button>
 
-      <p class="muted" style="margin-top:1rem"><strong>Option B</strong> — report to free legal aid (DLSA).</p>
-      <button class="btn-gold" id="toDlsa">Report to DLSA</button>
+      <p class="muted" style="margin-top:1rem">${t("result.optionB")}</p>
+      <button class="btn-gold" id="toDlsa">${t("result.reportDlsa")}</button>
 
-      <div class="disclaimer">
-        This is not legal advice. For complex or urgent situations, contact
-        your nearest DLSA or call the free helpline: 15100.
-      </div>
+      <div class="disclaimer">${t("result.disclaimer")}</div>
     `;
     document.getElementById("toCounter").onclick = () => goTo("counter");
     document.getElementById("toDlsa").onclick = () => goTo("dlsaForm");
   } else {
     root.innerHTML = `
-      <span class="stamp low">Standard clause</span>
-      <p>No major legal violations were detected in this clause.</p>
+      <span class="stamp low">${t("result.lowStamp")}</span>
+      <p>${t("result.lowIntro")}</p>
 
       ${r.plain_explanation ? `
-        <h2>What this means</h2>
+        <h2>${t("result.whatItMeans")}</h2>
         <div class="panel explain">${esc(r.plain_explanation)}</div>
       ` : ""}
-      ${r.legal_citation ? `<div class="panel citation">Reference: ${esc(r.legal_citation)}</div>` : ""}
+      ${r.legal_citation ? `<div class="panel citation">${esc(t("result.reference", { v: r.legal_citation }))}</div>` : ""}
       ${r.summary ? `<p>${esc(r.summary)}</p>` : ""}
 
-      <p class="muted">If something still feels wrong, or wasn't covered here,
-      call the free Tamil Nadu legal aid helpline: <strong>15100</strong>.</p>
+      <p class="muted">${t("result.stillWrong", { num: "<strong>15100</strong>" })}</p>
 
-      <button class="btn-primary" id="another">Check another clause</button>
+      <button class="btn-primary" id="another">${t("result.checkAnother")}</button>
     `;
     document.getElementById("another").onclick = reset;
   }
 }
 
 function overallVerdict(highCount, total) {
-  if (highCount === 0) {
-    return "None of the clauses checked appear to violate Tamil Nadu law. This agreement looks reasonably standard — read it in full before signing, but nothing here needs a fight.";
-  }
+  if (highCount === 0) return t("verdict.allClear");
   if (highCount === total) {
-    return `All ${total} clause${total > 1 ? "s" : ""} checked appear to violate Tamil Nadu law. We would not recommend signing this as-is — push back or escalate using the options below first.`;
+    if (currentLang() === "en" && total === 1) {
+      return "The 1 clause checked appears to violate Tamil Nadu law. We would not recommend signing this as-is — push back or escalate using the options below first.";
+    }
+    return t("verdict.allBad", { total });
   }
-  return `${highCount} of ${total} clauses checked appear to violate Tamil Nadu law. Don't sign yet — get those flagged clauses corrected or escalated first; the rest look standard.`;
+  return t("verdict.someBad", { high: highCount, total });
 }
 
 // ---- Screen 2b: Image result — a list of every clause found -------------
@@ -416,13 +407,9 @@ function renderImageResult() {
 
   if (!clauses.length) {
     root.innerHTML = `
-      <h2>No clauses found</h2>
-      <p class="panel error">
-        We couldn't confidently match any clauses in this photo to our rule base.
-        Try a clearer photo — good lighting, the page flat and not angled — or
-        paste the text instead.
-      </p>
-      <button class="btn-primary" id="another">Try again</button>
+      <h2>${t("err.noClausesTitle")}</h2>
+      <p class="panel error">${t("err.noClausesBody")}</p>
+      <button class="btn-primary" id="another">${t("result.retry")}</button>
     `;
     document.getElementById("another").onclick = reset;
     return;
@@ -437,16 +424,16 @@ function renderImageResult() {
       return `
         <div class="panel ${isHigh ? "explain" : "confirm"}" style="border-left-color: ${isHigh ? "var(--red)" : "var(--green)"}">
           <span class="stamp ${isHigh ? "high" : "low"}" style="font-size:0.8rem; padding:0.35rem 0.7rem; margin-bottom:0.5rem;">
-            ${isHigh ? "High risk" : "Standard"}
+            ${isHigh ? t("result.highStamp") : t("imgResult.standard")}
           </span>
           <p style="font-weight:600; margin-top:0.3rem;">${esc(prettyClauseType(c.clause_type))}</p>
           ${c.clause_text ? `<p class="muted" style="font-size:0.85rem; font-style:italic;">"${esc(truncate(c.clause_text, 140))}"</p>` : ""}
           ${c.plain_explanation ? `<p style="font-size:0.92rem;">${esc(c.plain_explanation)}</p>` : ""}
-          ${c.legal_citation ? `<p class="muted" style="font-size:0.82rem;">Legal basis: ${esc(c.legal_citation)}</p>` : ""}
+          ${c.legal_citation ? `<p class="muted" style="font-size:0.82rem;">${esc(t("imgResult.legalBasis", { v: c.legal_citation }))}</p>` : ""}
           ${isHigh ? `
             <div class="btn-row">
-              <button class="btn-primary" data-action="counter" data-index="${i}">Counter-message</button>
-              <button class="btn-gold" data-action="dlsa" data-index="${i}">Report to DLSA</button>
+              <button class="btn-primary" data-action="counter" data-index="${i}">${t("imgResult.counter")}</button>
+              <button class="btn-gold" data-action="dlsa" data-index="${i}">${t("imgResult.dlsa")}</button>
             </div>
           ` : ""}
         </div>
@@ -456,30 +443,28 @@ function renderImageResult() {
 
   const bulkSection = highCount > 1 ? `
     <div class="panel dlsa">
-      <p style="font-weight:600; margin-top:0">Deal with all ${highCount} risky clauses at once</p>
-      <p class="muted" style="font-size:0.9rem">Instead of going one by one, you can send a single
-      combined counter-message or a single combined DLSA complaint that covers every risky clause.</p>
+      <p style="font-weight:600; margin-top:0">${t("imgResult.bulkTitle", { n: highCount })}</p>
+      <p class="muted" style="font-size:0.9rem">${t("imgResult.bulkBody")}</p>
       <div class="btn-row">
-        <button class="btn-primary" id="bulkCounter">Counter-message for all</button>
-        <button class="btn-gold" id="bulkDlsa">Escalate all to DLSA</button>
+        <button class="btn-primary" id="bulkCounter">${t("imgResult.bulkCounter")}</button>
+        <button class="btn-gold" id="bulkDlsa">${t("imgResult.bulkDlsa")}</button>
       </div>
     </div>
   ` : "";
 
   root.innerHTML = `
-    <h2>${clauses.length} clause${clauses.length > 1 ? "s" : ""} found</h2>
+    <h2>${currentLang() === "en" && clauses.length === 1
+      ? "1 clause found"
+      : t("imgResult.title", { n: clauses.length })}</h2>
     <div class="panel ${highCount > 0 ? "explain" : "confirm"}">${esc(verdict)}</div>
 
     ${cards}
 
     ${bulkSection}
 
-    <button class="btn-primary" id="another" style="margin-top:1rem">Check another document</button>
+    <button class="btn-primary" id="another" style="margin-top:1rem">${t("imgResult.checkAnother")}</button>
 
-    <div class="disclaimer">
-      This is not legal advice. For complex or urgent situations, contact
-      your nearest DLSA or call the free helpline: 15100.
-    </div>
+    <div class="disclaimer">${t("result.disclaimer")}</div>
   `;
 
   root.querySelectorAll('[data-action="counter"]').forEach((btn) => {
@@ -535,33 +520,30 @@ function renderCounter() {
   const msg = (activeClause().counter_message) || "";
   const bulk = state.bulkMode;
   root.innerHTML = `
-    <h2>${bulk ? "Counter-message for all risky clauses" : "Counter-message"}</h2>
-    <p class="muted">${bulk
-      ? "Drafted based on Tamil Nadu law, one section per risky clause. Edit it before sending via WhatsApp, SMS, or in person."
-      : "Drafted based on Tamil Nadu law. Edit it before sending via WhatsApp, SMS, or in person."}</p>
+    <h2>${bulk ? t("counter.titleBulk") : t("counter.title")}</h2>
+    <p class="muted">${bulk ? t("counter.subtitleBulk") : t("counter.subtitle")}</p>
 
     <textarea id="counterText" style="min-height:200px">${esc(msg)}</textarea>
 
     <div class="btn-row">
-      <button class="btn-outline" id="copyBtn">Copy text</button>
-      <button class="btn-outline" id="downloadBtn">Download</button>
+      <button class="btn-outline" id="copyBtn">${t("counter.copy")}</button>
+      <button class="btn-outline" id="downloadBtn">${t("counter.download")}</button>
     </div>
 
-    <p class="muted" style="margin-top:1rem">If the other party refuses to change
-    ${bulk ? "these clauses" : "this clause"}, you can escalate to free legal aid.</p>
+    <p class="muted" style="margin-top:1rem">${bulk ? t("counter.escalateHintBulk") : t("counter.escalateHint")}</p>
 
     <div class="btn-row">
-      <button class="btn-gold" id="toDlsa">${bulk ? "Escalate all to DLSA" : "Escalate to DLSA"}</button>
-      <button class="btn-text" id="another">Check another clause</button>
+      <button class="btn-gold" id="toDlsa">${bulk ? t("counter.escalateBulk") : t("counter.escalate")}</button>
+      <button class="btn-text" id="another">${t("counter.another")}</button>
     </div>
 
-    <div class="helpline">Free Legal Aid Helpline: 15100</div>
+    <div class="helpline">${t("counter.helpline")}</div>
   `;
 
   document.getElementById("copyBtn").onclick = async () => {
     await navigator.clipboard.writeText(document.getElementById("counterText").value);
-    document.getElementById("copyBtn").textContent = "Copied";
-    setTimeout(() => (document.getElementById("copyBtn").textContent = "Copy text"), 1200);
+    document.getElementById("copyBtn").textContent = t("counter.copied");
+    setTimeout(() => (document.getElementById("copyBtn").textContent = t("counter.copy")), 1200);
   };
   document.getElementById("downloadBtn").onclick = () => {
     downloadText(document.getElementById("counterText").value, "counter_message.txt");
@@ -575,20 +557,18 @@ function renderCounter() {
 function renderDlsaForm() {
   const bulk = state.bulkMode;
   root.innerHTML = `
-    <h2>Report to free legal aid</h2>
-    <p class="muted">${bulk
-      ? "A single formal complaint covering every risky clause will be drafted for the DLSA office in your district."
-      : "A formal complaint will be drafted for the DLSA office in your district."}</p>
-    <div id="dlsaInfo" class="panel dlsa">Loading office details…</div>
+    <h2>${t("dlsa.title")}</h2>
+    <p class="muted">${bulk ? t("dlsa.subtitleBulk") : t("dlsa.subtitle")}</p>
+    <div id="dlsaInfo" class="panel dlsa">${t("dlsa.loading")}</div>
 
-    <label for="userName">Your full name</label>
-    <input type="text" id="userName" value="${esc(state.userName)}" placeholder="As it should appear in the complaint" />
+    <label for="userName">${t("dlsa.nameLabel")}</label>
+    <input type="text" id="userName" value="${esc(state.userName)}" placeholder="${esc(t("dlsa.namePlaceholder"))}" />
 
-    <label for="userEmail">Your email address</label>
-    <input type="email" id="userEmail" value="${esc(state.userEmail)}" placeholder="You'll get a copy of the complaint here" />
-    <p class="muted" style="font-size:0.85rem">Used only to send you a copy. Not stored or shared.</p>
+    <label for="userEmail">${t("dlsa.emailLabel")}</label>
+    <input type="email" id="userEmail" value="${esc(state.userEmail)}" placeholder="${esc(t("dlsa.emailPlaceholder"))}" />
+    <p class="muted" style="font-size:0.85rem">${t("dlsa.emailNote")}</p>
 
-    <button class="btn-primary" id="draftBtn">Draft the complaint email</button>
+    <button class="btn-primary" id="draftBtn">${t("dlsa.draftBtn")}</button>
     <div id="dlsaStatus"></div>
   `;
 
@@ -596,13 +576,12 @@ function renderDlsaForm() {
     .then((office) => {
       document.getElementById("dlsaInfo").innerHTML = `
         <strong>${esc(office.office)}</strong><br>
-        Address: ${esc(office.address)}<br>
-        Phone: ${esc(office.phone)}
+        ${esc(t("dlsa.address", { v: office.address }))}<br>
+        ${esc(t("dlsa.phone", { v: office.phone }))}
       `;
     })
     .catch(() => {
-      document.getElementById("dlsaInfo").textContent =
-        "Could not load office details, but you can still continue.";
+      document.getElementById("dlsaInfo").textContent = t("dlsa.loadFailed");
     });
 
   document.getElementById("draftBtn").onclick = async () => {
@@ -610,14 +589,14 @@ function renderDlsaForm() {
     const email = document.getElementById("userEmail").value.trim();
     const status = document.getElementById("dlsaStatus");
 
-    if (!name) return (status.innerHTML = '<p class="panel error">Please enter your name.</p>');
+    if (!name) return (status.innerHTML = `<p class="panel error">${t("dlsa.errNoName")}</p>`);
     if (!email || !email.includes("@"))
-      return (status.innerHTML = '<p class="panel error">Please enter a valid email address.</p>');
+      return (status.innerHTML = `<p class="panel error">${t("dlsa.errBadEmail")}</p>`);
 
     state.userName = name;
     state.userEmail = email;
     status.innerHTML =
-      '<div class="spinner"><span class="dot"></span><span class="dot"></span><span class="dot"></span> Drafting formal complaint...</div>';
+      `<div class="spinner"><span class="dot"></span><span class="dot"></span><span class="dot"></span> ${t("dlsa.drafting")}</div>`;
 
     const clause = activeClause();
     try {
@@ -633,7 +612,7 @@ function renderDlsaForm() {
       state.complaintData = complaintData;
       goTo("emailPreview");
     } catch (err) {
-      status.innerHTML = `<p class="panel error">${esc(err.message)}</p>`;
+      status.innerHTML = `<p class="panel error">${esc(t("err.generic", { msg: err.message }))}</p>`;
     }
   };
 }
@@ -643,26 +622,27 @@ function renderDlsaForm() {
 function renderEmailPreview() {
   const c = state.complaintData;
   const bulk = state.bulkMode;
-  const subject = `Legal Complaint - Illegal Clause${bulk ? "s" : ""} in Agreement - ${state.district}`;
+  // The complaint itself is always drafted/sent in English (a formal letter
+  // to a government office) regardless of the app's language setting — see
+  // the note below the preview.
+  const subject = t(bulk ? "email.subjectLineBulk" : "email.subjectLineSingle", { district: state.district });
   root.innerHTML = `
-    <h2>Review your complaint email</h2>
-    <p class="muted">This will be sent to the DLSA office. You'll receive a copy.
-    Please read it carefully first.</p>
+    <h2>${t("email.title")}</h2>
+    <p class="muted">${t("email.subtitle")}</p>
 
-    <p><strong>To:</strong> ${esc(c.dlsa_email)}<br>
-    <strong>Cc:</strong> ${esc(state.userEmail)}<br>
-    <strong>Subject:</strong> ${esc(subject)}</p>
+    <p><strong>${t("email.toLabel")}:</strong> ${esc(c.dlsa_email)}<br>
+    <strong>${t("email.ccLabel")}:</strong> ${esc(state.userEmail)}<br>
+    <strong>${t("email.subjectLabel")}:</strong> ${esc(subject)}</p>
 
     <div class="email-preview">${esc(c.complaint_text)}</div>
 
-    <button class="btn-primary" id="sendBtn">Send this email</button>
-    <button class="btn-outline" id="downloadBtn">Download and send yourself</button>
+    <button class="btn-primary" id="sendBtn">${t("email.send")}</button>
+    <button class="btn-outline" id="downloadBtn">${t("email.downloadSelf")}</button>
     <div id="sendStatus"></div>
 
-    <div class="disclaimer">
-      Verify DLSA email addresses at tnsla.tn.gov.in if you don't hear back
-      within 7 working days. Free helpline: 15100.
-    </div>
+    <p class="muted" style="font-size:0.82rem; margin-top:1rem">${t("email.note")}</p>
+
+    <div class="disclaimer">${t("email.disclaimer")}</div>
   `;
 
   document.getElementById("downloadBtn").onclick = () =>
@@ -671,7 +651,7 @@ function renderEmailPreview() {
   document.getElementById("sendBtn").onclick = async () => {
     const status = document.getElementById("sendStatus");
     status.innerHTML =
-      '<div class="spinner"><span class="dot"></span><span class="dot"></span><span class="dot"></span> Sending complaint to DLSA...</div>';
+      `<div class="spinner"><span class="dot"></span><span class="dot"></span><span class="dot"></span> ${t("email.sending")}</div>`;
     try {
       const sendResult = await Api.sendComplaint({
         to_address: c.dlsa_email,
@@ -683,7 +663,7 @@ function renderEmailPreview() {
       state.sendResult = sendResult;
       goTo("confirmation");
     } catch (err) {
-      status.innerHTML = `<p class="panel error">${esc(err.message)}</p>`;
+      status.innerHTML = `<p class="panel error">${esc(t("err.generic", { msg: err.message }))}</p>`;
     }
   };
 }
@@ -695,36 +675,33 @@ function renderConfirmation() {
   const s = state.sendResult || {};
 
   root.innerHTML = `
-    <h2>${s.success ? "Complaint sent" : "Could not send automatically"}</h2>
+    <h2>${s.success ? t("confirm.sentTitle") : t("confirm.failedTitle")}</h2>
     ${
       s.success
         ? `<div class="panel confirm">
-             Sent to: ${esc(s.sent_to)}<br>
-             A copy was sent to: ${esc(s.cc)}
+             ${esc(t("confirm.sentTo", { v: s.sent_to }))}<br>
+             ${esc(t("confirm.ccTo", { v: s.cc }))}
            </div>
-           <p class="muted">Expected response time is 3 to 7 working days.</p>`
-        : `<div class="panel error">${esc(s.error || "Unknown error.")}</div>
-           <p>Please download the complaint and send it manually.</p>
-           <button class="btn-outline" id="downloadBtn">Download complaint letter</button>`
+           <p class="muted">${t("confirm.eta")}</p>`
+        : `<div class="panel error">${esc(s.error || t("confirm.unknownError"))}</div>
+           <p>${t("confirm.sendManually")}</p>
+           <button class="btn-outline" id="downloadBtn">${t("confirm.downloadLetter")}</button>`
     }
 
-    <h2 style="margin-top:1.4rem">DLSA office details</h2>
+    <h2 style="margin-top:1.4rem">${t("confirm.officeDetails")}</h2>
     <div class="panel dlsa">
       <strong>${esc(c.dlsa_office)}</strong><br>
-      Address: ${esc(c.dlsa_address)}<br>
-      Phone: ${esc(c.dlsa_phone)}<br>
-      Email: ${esc(c.dlsa_email)}
+      ${esc(t("confirm.address", { v: c.dlsa_address }))}<br>
+      ${esc(t("confirm.phone", { v: c.dlsa_phone }))}<br>
+      ${esc(t("confirm.email", { v: c.dlsa_email }))}
     </div>
 
-    <div class="helpline">Free Legal Aid Helpline: 15100 (available across Tamil Nadu)</div>
-    <p class="muted">Website: tnsla.tn.gov.in</p>
+    <div class="helpline">${t("confirm.helpline")}</div>
+    <p class="muted">${t("confirm.website")}</p>
 
-    <button class="btn-primary" id="another">Check another clause</button>
+    <button class="btn-primary" id="another">${t("confirm.another")}</button>
 
-    <div class="disclaimer">
-      This tool is not a substitute for legal counsel. For urgent situations,
-      call 15100 immediately.
-    </div>
+    <div class="disclaimer">${t("confirm.disclaimer")}</div>
   `;
 
   const dl = document.getElementById("downloadBtn");

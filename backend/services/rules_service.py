@@ -39,8 +39,34 @@ def find_clause(clause_type: str, doc_type: str) -> dict | None:
     return None
 
 
-def act_name(doc_type: str) -> str:
-    return get_rules(doc_type)["act"]
+# Fields that have a Tamil counterpart in the rule JSON (field -> field_ta).
+_LOCALIZED_FIELDS = ["label", "legal_limit", "section", "plain_explanation", "counter_message"]
+
+
+def localize_clause(clause: dict, lang: str = "en") -> dict:
+    """
+    Return a copy of a clause dict with the localized-field values swapped
+    in for the requested language. Falls back to the English value if the
+    Tamil translation is missing, so the UI never shows a blank string.
+    Only affects fields listed in _LOCALIZED_FIELDS — clause_type is left
+    as-is since it's an internal key, not user-facing text.
+    """
+    if lang not in ("en", "ta"):
+        lang = "en"
+    localized = dict(clause)
+    if lang == "ta":
+        for field in _LOCALIZED_FIELDS:
+            ta_value = clause.get(f"{field}_ta")
+            if ta_value:
+                localized[field] = ta_value
+    return localized
+
+
+def act_name(doc_type: str, lang: str = "en") -> str:
+    rules = get_rules(doc_type)
+    if lang == "ta" and rules.get("act_ta"):
+        return rules["act_ta"]
+    return rules["act"]
 
 
 def get_dlsa_office(district: str) -> dict:
