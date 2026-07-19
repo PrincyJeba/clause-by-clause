@@ -30,7 +30,6 @@ const state = {
   imageBase64: null,
   imageMimeType: null,
   imagePreviewUrl: null,
-  imageFileName: "",
   imageClauses: [],
   imageSummary: null,
   selectedClauseIndex: null, // which imageClauses[] entry is "active" for counter/DLSA screens
@@ -53,7 +52,6 @@ function reset() {
     imageBase64: null,
     imageMimeType: null,
     imagePreviewUrl: null,
-    imageFileName: "",
     imageClauses: [],
     imageSummary: null,
     selectedClauseIndex: null,
@@ -269,51 +267,24 @@ function renderTextInputBody() {
 
 function renderImageInputBody() {
   const body = document.getElementById("modeBody");
-  const hasImage = !!state.imagePreviewUrl;
-
   body.innerHTML = `
     <label for="imageInput">${t("input.imageLabel")}</label>
-
-    <div id="uploadZoneWrap" class="${hasImage ? "hidden" : ""}">
-      <label class="upload-zone" for="imageInput">
-        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M4 8a2 2 0 0 1 2-2h1.2a1 1 0 0 0 .87-.5l.86-1.5a1 1 0 0 1 .87-.5h4.4a1 1 0 0 1 .87.5l.86 1.5a1 1 0 0 0 .87.5H18a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Z"/>
-          <circle cx="12" cy="13" r="3.5"/>
-        </svg>
-        <div class="upload-zone-title">${t("input.imageLabel")}</div>
-        <div class="upload-zone-sub">${t("input.imageHint")}</div>
-      </label>
-    </div>
-
+    <input type="file" id="imageInput" accept="image/*" capture="environment" />
+    <p class="muted" style="font-size:0.85rem">${t("input.imageHint")}</p>
     <div id="imagePreviewWrap"></div>
-
-    <input type="file" id="imageInput" accept="image/*" capture="environment" class="visually-hidden" />
   `;
 
-  if (hasImage) {
+  if (state.imagePreviewUrl) {
     document.getElementById("imagePreviewWrap").innerHTML = `
-      <div class="preview-card">
-        <img src="${state.imagePreviewUrl}" alt="${esc(t("input.imageAlt"))}" />
-        <div class="preview-card-footer">
-          <span class="filename">${esc(state.imageFileName)}</span>
-          <button type="button" class="btn-outline" id="changePhotoBtn">${t("input.imageChange")}</button>
-        </div>
-      </div>
+      <img src="${state.imagePreviewUrl}" alt="${esc(t("input.imageAlt"))}"
+        style="width:100%;border-radius:10px;margin-top:0.6rem;border:1.5px solid var(--border);" />
     `;
-    document.getElementById("changePhotoBtn").onclick = () => {
-      state.imageBase64 = null;
-      state.imageMimeType = null;
-      state.imagePreviewUrl = null;
-      state.imageFileName = "";
-      render();
-    };
   }
 
   document.getElementById("imageInput").onchange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
     state.imageMimeType = file.type || "image/jpeg";
-    state.imageFileName = file.name || "photo";
 
     const reader = new FileReader();
     reader.onload = () => {
@@ -825,3 +796,7 @@ function downloadText(text, filename) {
 }
 
 render();
+
+
+
+
