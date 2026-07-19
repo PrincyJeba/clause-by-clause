@@ -399,6 +399,16 @@ function renderResult() {
   }
 }
 
+function overallVerdict(highCount, total) {
+  if (highCount === 0) {
+    return "None of the clauses checked appear to violate Tamil Nadu law. This agreement looks reasonably standard — read it in full before signing, but nothing here needs a fight.";
+  }
+  if (highCount === total) {
+    return `All ${total} clause${total > 1 ? "s" : ""} checked appear to violate Tamil Nadu law. We would not recommend signing this as-is — push back or escalate using the options below first.`;
+  }
+  return `${highCount} of ${total} clauses checked appear to violate Tamil Nadu law. Don't sign yet — get those flagged clauses corrected or escalated first; the rest look standard.`;
+}
+
 // ---- Screen 2b: Image result — a list of every clause found -------------
 
 function renderImageResult() {
@@ -412,7 +422,6 @@ function renderImageResult() {
         Try a clearer photo — good lighting, the page flat and not angled — or
         paste the text instead.
       </p>
-      ${state.imageSummary ? `<p class="muted">${esc(state.imageSummary)}</p>` : ""}
       <button class="btn-primary" id="another">Try again</button>
     `;
     document.getElementById("another").onclick = reset;
@@ -420,6 +429,7 @@ function renderImageResult() {
   }
 
   const highCount = clauses.filter((c) => c.risk_level === "HIGH").length;
+  const verdict = (state.imageSummary && state.imageSummary.trim()) || overallVerdict(highCount, clauses.length);
 
   const cards = clauses
     .map((c, i) => {
@@ -458,10 +468,7 @@ function renderImageResult() {
 
   root.innerHTML = `
     <h2>${clauses.length} clause${clauses.length > 1 ? "s" : ""} found</h2>
-    <p class="muted">${highCount > 0
-      ? `${highCount} of them appear to violate Tamil Nadu law.`
-      : "None of them appear to violate Tamil Nadu law."}</p>
-    ${state.imageSummary ? `<div class="panel citation">${esc(state.imageSummary)}</div>` : ""}
+    <div class="panel ${highCount > 0 ? "explain" : "confirm"}">${esc(verdict)}</div>
 
     ${cards}
 

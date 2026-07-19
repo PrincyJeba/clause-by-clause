@@ -248,8 +248,11 @@ def analyze_contract_image(image_bytes: bytes, mime_type: str, doc_type: str, di
         f"that same clause_type before moving to the next clause. "
         f"If part of the image is unreadable, skip only that part rather than guessing, "
         f"and mention it in your final summary. "
-        f"Once you have checked every clause you can find, give a short plain-English "
-        f"summary of what you found overall — do not use legal jargon."
+        f"Once you have checked every clause you can find, give your final summary as ONE or TWO short "
+        f"sentences only — an overall verdict (e.g. how many clauses are risky, and whether the person "
+        f"should sign, negotiate, or avoid signing as-is). Do not use legal jargon, do not repeat the "
+        f"detailed explanation of each individual clause (that is shown separately), and do not exceed "
+        f"two sentences."
     )
 
     result = {"clauses": [], "summary": None, "error": None}
